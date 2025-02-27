@@ -9,6 +9,7 @@ using lol = Hattory.Kernel;
 using Cosmos.System.Graphics;
 using System.Drawing;
 using Cosmos.System.Graphics.Fonts;
+using Cosmos.Debug.Kernel.Plugs.Asm;
 
 namespace Hattory
 {
@@ -16,11 +17,10 @@ namespace Hattory
     {
         public static int Collor = 0;
         public static List<string> coords = new List<string>();
-        public static void Start() {
+        public static void Start()
+        {
             lol.canvas.DrawFilledRectangle(Color.Red, 30, 610, 50, 25);
             Otrisovka.Write("SAVE", 35, 619, Color.Black);
-            //lol.canvas.DrawFilledRectangle(Color.LightYellow, 30, 640, 50, 25);
-            //Otrisovka.Write("LOAD", 35, 649, Color.Black);
             lol.canvas.DrawFilledRectangle(Color.White, 90, 610, 50, 25);
             Otrisovka.Write("CLEAR", 95, 619, Color.Black);
             lol.canvas.DrawFilledRectangle(Color.DarkGray, 30, 640, 20, 20);
@@ -37,7 +37,7 @@ namespace Hattory
             if (Collor == 1) { Otrisovka.Write("Blue", 75, 700, Color.DarkBlue); }
             if (Collor == 2) { Otrisovka.Write("Green", 75, 700, Color.DarkGreen); }
             if (Collor == 3) { Otrisovka.Write("SkyBlue", 75, 700, Color.SkyBlue); }
-            if (Collor == 4 ) { Otrisovka.Write("Red", 75, 700, Color.DarkRed); }
+            if (Collor == 4) { Otrisovka.Write("Red", 75, 700, Color.DarkRed); }
             if (Collor == 5) { Otrisovka.Write("Pink", 75, 700, Color.DeepPink); }
             if (Collor == 6) { Otrisovka.Write("Yellow", 75, 700, Color.YellowGreen); }
             if (Collor == 7) { Otrisovka.Write("White..? useless :D", 75, 700, Color.White); }
@@ -45,13 +45,13 @@ namespace Hattory
             // COLORS
             #region colors
             if (lol.Click(30, 640, 20, 20)) { Collor = 0; }
-             if (lol.Click(60, 640, 20, 20)) { Collor = 1; }
-             if (lol.Click(90, 640, 20, 20)) { Collor = 2; }
-             if (lol.Click(120, 640, 20, 20)) { Collor = 3; }
-             if (lol.Click(30, 670, 20, 20)) { Collor = 4; }
-             if (lol.Click(60, 670, 20, 20)) { Collor = 5; }
-             if (lol.Click(90, 670, 20, 20)) { Collor = 6; }
-             if (lol.Click(120, 670, 20, 20)) { Collor = 7; }
+            if (lol.Click(60, 640, 20, 20)) { Collor = 1; }
+            if (lol.Click(90, 640, 20, 20)) { Collor = 2; }
+            if (lol.Click(120, 640, 20, 20)) { Collor = 3; }
+            if (lol.Click(30, 670, 20, 20)) { Collor = 4; }
+            if (lol.Click(60, 670, 20, 20)) { Collor = 5; }
+            if (lol.Click(90, 670, 20, 20)) { Collor = 6; }
+            if (lol.Click(120, 670, 20, 20)) { Collor = 7; }
             #endregion
 
             if (lol.Click(30, 300, 300, 300))
@@ -93,21 +93,45 @@ namespace Hattory
                     if (coordinates[2] == "7") { lol.canvas.DrawFilledCircle(Color.White, Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1]), 2); }
                 }
             }
-            if(lol.Click(30, 610, 50, 25)){
-                string ftext = "";
-                foreach (string s in coords)
+            if (lol.Click(30, 610, 50, 25))
+            {
+                try 
                 {
-                    ftext += s + "&";
-                }
-                string filenam;
-                for (int i = 0; ; i++) {
-                    filenam = "MyImage" + i.ToString();
-                    if (!Directory.Exists(@"0:\ColorFull")) { Directory.CreateDirectory(@"0:\ColorFull"); }
-                    if (!File.Exists(@"0:\ColorFull\" + filenam + ".cfi")) {
-                        File.Create(@"0:\ColorFull\" + filenam + ".cfi");
-                        File.WriteAllText(@"0:\ColorFull\" + filenam + ".cfi", ftext);
-                        break;
+                    string goodpart = "";
+                    string ftext = "";
+                    foreach (string s in coords)
+                    {
+                        ftext += s + "&";
                     }
+                    string filenam;
+                    foreach (var partition in Kernel.fs.Disks[Kernel.globaldskcnt].Partitions)
+                    {
+                        if (partition.RootPath == "" || partition.RootPath == null) { }
+                        else
+                        {
+                            goodpart = partition.RootPath;
+                        }
+                    }
+                    if (goodpart != "")
+                    {
+                        for (int i = 0; ; i++)
+                        {
+                            filenam = "MyImage" + i.ToString();
+                            if (!Directory.Exists(goodpart + "ColorFull")) { Directory.CreateDirectory(goodpart + "ColorFull"); }
+                            if (!File.Exists(goodpart + @"ColorFull\" + filenam + ".cfi"))
+                            {
+                                File.Create(goodpart + @"ColorFull\" + filenam + ".cfi");
+                                File.WriteAllText(goodpart + @"ColorFull\" + filenam + ".cfi", ftext);
+                                FpsShower.Msg("Successfully saved!");
+                                FpsShower.playSound = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    FpsShower.Msg("Saving error!", e.ToString(), false);
+                    FpsShower.playSound = true;
                 }
             }
             /*if (lol.Click(30, 640, 50, 25) && File.Exists(@"0:\MyImage.CFI"))

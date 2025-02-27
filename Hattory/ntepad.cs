@@ -1,4 +1,7 @@
-﻿using Cosmos.System.Graphics;
+﻿using Cosmos.HAL.BlockDevice;
+using Cosmos.System.FileSystem;
+using Cosmos.System.FileSystem.VFS;
+using Cosmos.System.Graphics;
 using System;
 using System.Drawing;
 using System.IO;
@@ -11,7 +14,7 @@ namespace Hattory
     internal class Notepad
     {
         public static Canvas canvas = Hattory.Kernel.canvas;
-        public static string path = @"0:\";
+        public static string path = @"Partitions on disk:";
         public static string fileeepath = "";
         public static string txta = "";
         public static string filename = "test.txt";
@@ -26,105 +29,141 @@ namespace Hattory
 
         public static void enternote()
         {
-            canvas.DrawFilledRectangle(Color.Wheat, 10, 60, 270 + (path.Length * 2), 250);
+            canvas.DrawFilledRectangle(Color.Wheat, 10, 60, 270 + (path.Length * 2), 400);
             Otrisovka.Write("File Manager: " + path, 30, 70, Color.Black);
             try
             {
-                var files_list = Directory.GetFiles(path);
-                var directory_list = Directory.GetDirectories(path);
-                //Otrisovka.Write(string.Join('`',directory_list), 15, 90, Color.Black, true);
-                //Otrisovka.Write(string.Join('`',files_list), 110, 90, Color.Black, true);
                 if (Hattory.Kernel.Click(30, 70, 112, 10))
                 {
                     //path = @"0:\" ;
-                    path = Hattory.Kernel.globaldskcnt.ToString() + @":\";
+                    path = @"Partitions on disk:";
                 }
                 iznyy = 90;
                 iznai = 90;
-                //directories
-                foreach (string dir in directory_list)
+                if (path == @"Partitions on disk:")
                 {
-                    canvas.DrawFilledRectangle(Color.Gold, 15, iznyy, dir.Length * 8, 15);
-                    Otrisovka.Write(dir, 15, iznyy, Color.Black);
-                    if (Hattory.Kernel.Click(15, iznyy, dir.Length * 8, 16))
+                    //directories
+                    foreach (var partition in Kernel.fs.Disks[Kernel.globaldskcnt].Partitions)
                     {
-                        path = path + dir + @"\";
-                    }
-                    iznyy += 16;
-                }
-                //files
-                foreach (string pathhh in files_list)
-                {
-                    canvas.DrawFilledRectangle(Color.Gold, 150, iznai, pathhh.Length * 8, 15);
-                    Otrisovka.Write(pathhh, 150, iznai, Color.Black);
-                    //OPEN FILE TXT | BMP
-                    if (Hattory.Kernel.Click(150, iznai, pathhh.Length * 8, 15))
-                    {
-                        try
+                        if (partition.RootPath == "" || partition.RootPath == null)
                         {
-                            if (pathhh.EndsWith(".txt") || pathhh.EndsWith(".Txt") || pathhh.EndsWith(".tXt") || pathhh.EndsWith(".txT") || pathhh.EndsWith(".TXt") || pathhh.EndsWith(".tXT") || pathhh.EndsWith(".TxT") || pathhh.EndsWith(".TXT"))
+                            Otrisovka.Write("Not registered, Size: " + (int)(partition.Host.BlockCount * partition.Host.BlockSize / 1024 / 1024), 15, iznyy, Color.Black);
+                        }
+                        else { 
+                            Otrisovka.Write(partition.RootPath + " , Size: " + (int)(partition.Host.BlockCount * partition.Host.BlockSize / 1024 / 1024), 15, iznyy, Color.Black);
+                            if (Hattory.Kernel.Click(15, iznyy, 128, 16))
                             {
-                                txta = File.ReadAllText(path + @"\" + pathhh);
-                                @fileeepath = pathhh;
-                                isended = false;
+                                path = partition.RootPath;
                             }
-                            if (pathhh.EndsWith(".cfi") || pathhh.EndsWith(".Cfi") || pathhh.EndsWith(".cFi") || pathhh.EndsWith(".cfI") || pathhh.EndsWith(".CFi") || pathhh.EndsWith(".cFI") || pathhh.EndsWith(".CfI") || pathhh.EndsWith(".CFI"))
+                        }
+                        iznyy += 16;
+                    }
+                }
+                else
+                {
+                    var files_list = Directory.GetFiles(path);
+                    var directory_list = Directory.GetDirectories(path);
+                    //Otrisovka.Write(string.Join('`',directory_list), 15, 90, Color.Black, true);
+                    //Otrisovka.Write(string.Join('`',files_list), 110, 90, Color.Black, true);
+                    //directories
+                    foreach (string dir in directory_list)
+                    {
+                        canvas.DrawFilledRectangle(Color.Gold, 15, iznyy, dir.Length * 8, 15);
+                        Otrisovka.Write(dir, 15, iznyy, Color.Black);
+                        if (Hattory.Kernel.Click(15, iznyy, dir.Length * 8, 16))
+                        {
+                            path = path + dir + @"\";
+                        }
+                        iznyy += 16;
+                    }
+                    //files
+                    foreach (string pathhh in files_list)
+                    {
+                        canvas.DrawFilledRectangle(Color.Gold, 150, iznai, pathhh.Length * 8, 15);
+                        Otrisovka.Write(pathhh, 150, iznai, Color.Black);
+                        //OPEN FILE TXT | BMP
+                        if (Hattory.Kernel.Click(150, iznai, pathhh.Length * 8, 15))
+                        {
+                            try
                             {
-                                txta = File.ReadAllText(path + @"\" + pathhh);
-                                Colorfull.Loadd(txta);
-                                Kernel.isColorfull = true;
-                                Kernel.isfilemanager = false;
-                            }
-                            if (pathhh.EndsWith(".bmp") || pathhh.EndsWith(".Bmp") || pathhh.EndsWith(".bMp") || pathhh.EndsWith(".bmP") || pathhh.EndsWith(".BMp") || pathhh.EndsWith(".bMP") || pathhh.EndsWith(".BmP") || pathhh.EndsWith(".BMP"))
-                            {
-                                try
+                                if (pathhh.EndsWith(".txt", true, null))
                                 {
-                                    bite = File.ReadAllBytes(path + @"\" + pathhh);
-                                    image = new sus.Graphics.Bitmap(bite);
-                                    if (image.Width <= 1100 && image.Height <= 700 && isendedbmp == true)
-                                    {
-                                        isendedbmp = false;
-                                    }
+                                    txta = File.ReadAllText(path + @"\" + pathhh);
+                                    @fileeepath = pathhh;
+                                    isended = false;
                                 }
-                                catch (Exception) { }
+                                if (pathhh.EndsWith(".cfi", true, null))
+                                {
+                                    txta = File.ReadAllText(path + @"\" + pathhh);
+                                    Colorfull.Loadd(txta);
+                                    Kernel.isColorfull = true;
+                                    Kernel.isfilemanager = false;
+                                }
+                                if (pathhh.EndsWith(".pcf", true, null))
+                                {
+                                    txta = File.ReadAllText(path + @"\" + pathhh);
+                                    PragmaCode.Load(txta);
+                                    Kernel.isPragma = true;
+                                    Kernel.isfilemanager = false;
+                                }
+                                if (pathhh.EndsWith(".wav", true, null))
+                                {
+                                    txta = File.ReadAllText(path + @"\" + pathhh);
+                                    Colorfull.Loadd(txta);
+                                    Kernel.isColorfull = true;
+                                    Kernel.isfilemanager = false;
+                                }
+                                if (pathhh.EndsWith(".bmp", true, null))
+                                {
+                                    try
+                                    {
+                                        bite = File.ReadAllBytes(path + @"\" + pathhh);
+                                        image = new sus.Graphics.Bitmap(bite);
+                                        if (image.Width <= 1100 && image.Height <= 700 && isendedbmp == true)
+                                        {
+                                            isendedbmp = false;
+                                        }
+                                    }
+                                    catch (Exception) { }
+                                }
                             }
+                            catch (Exception) { }
                         }
-                        catch (Exception) { }
-                    }
-                    //DELETE
-                    else if (Hattory.Kernel.ClickMiddle(150, iznai, pathhh.Length * 8, 15) && islock == false)
-                    {
-                        try
+                        //DELETE
+                        else if (Hattory.Kernel.ClickMiddle(150, iznai, pathhh.Length * 8, 15) && islock == false)
                         {
-                            islock = true;
-                            filenameeee = pathhh;
-                            Hattory.Kernel.isformatsure = true;
+                            try
+                            {
+                                islock = true;
+                                filenameeee = pathhh;
+                                Hattory.Kernel.isformatsure = true;
+                            }
+                            catch (Exception) { }
                         }
-                        catch (Exception) { }
+                        iznai += 16;
                     }
-                    iznai += 16;
-                }
-                //RENAME
-                if (Hattory.Kernel.ClickMiddle(150, 90, 270 + (path.Length * 2), 220) && islock == false)
-                {
-                    islock = true;
-                    klavaypr.On = false;
-                    Hattory.Kernel.isfilerename = true;
-                }
-                if (isended == false)
-                {
-                    entname(fileeepath);
-                    klavaypr.On = false;
-                }
-                if (isendedbmp == false)
-                {
-                    canvas.DrawImageAlpha(image, 350, 60);
-                    if (Hattory.Kernel.ClickRight(350, 60, (int)image.Width, (int)image.Height))
+                    //RENAME
+                    if (Hattory.Kernel.ClickMiddle(150, 90, 270 + (path.Length * 2), 220) && islock == false)
                     {
-                        isendedbmp = true;
+                        islock = true;
+                        klavaypr.On = false;
+                        Hattory.Kernel.isfilerename = true;
                     }
+                    if (isended == false)
+                    {
+                        entname(fileeepath);
+                        klavaypr.On = false;
+                    }
+                    if (isendedbmp == false)
+                    {
+                        canvas.DrawImageAlpha(image, 350, 60);
+                        if (Hattory.Kernel.ClickRight(350, 60, (int)image.Width, (int)image.Height))
+                        {
+                            isendedbmp = true;
+                        }
+                    }
+                    Cosmos.Core.Memory.Heap.Collect();
                 }
-                Cosmos.Core.Memory.Heap.Collect();
             }
             catch (Exception) { }
         }
@@ -167,7 +206,7 @@ namespace Hattory
                 }
                 else
                 {
-                    if (char.IsAscii(k.KeyChar) && k.KeyChar != ' ')
+                    if (!char.IsControl(k.KeyChar) && k.KeyChar != ' ' && char.IsAscii(k.KeyChar))
                     {
                         txta += k.KeyChar;
                     }

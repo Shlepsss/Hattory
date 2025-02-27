@@ -24,8 +24,9 @@
         <VMWareEdition>Workstation</VMWareEdition>
         <SignAssembly>False</SignAssembly>
         <UseUEFI>True</UseUEFI>
-        <RemoveBootDebugOutput>True</RemoveBootDebugOutput>
+        <RemoveBootDebugOutput>False</RemoveBootDebugOutput>
         <StackCorruptionDetectionEnabled>False</StackCorruptionDetectionEnabled>
+        <OptimizationLevel>0</OptimizationLevel>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -33,16 +34,39 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="chord.wav" />
       <None Remove="cursor.bmp" />
+      <None Remove="icons\calc.bmp" />
+      <None Remove="icons\colorfull.bmp" />
+      <None Remove="icons\fm.bmp" />
+      <None Remove="icons\guess.bmp" />
+      <None Remove="icons\info.bmp" />
+      <None Remove="icons\sett.bmp" />
+      <None Remove="icons\sound.bmp" />
+      <None Remove="icons\vs.bmp" />
+      <None Remove="icons\warn.bmp" />
       <None Remove="krab.bmp" />
+      <None Remove="startup.wav" />
     </ItemGroup>
 
     <ItemGroup>
+      <EmbeddedResource Include="chord.wav" />
       <EmbeddedResource Include="cursor.bmp" />
+      <EmbeddedResource Include="icons\calc.bmp" />
+      <EmbeddedResource Include="icons\colorfull.bmp" />
+      <EmbeddedResource Include="icons\fm.bmp" />
+      <EmbeddedResource Include="icons\guess.bmp" />
+      <EmbeddedResource Include="icons\info.bmp" />
+      <EmbeddedResource Include="icons\sett.bmp" />
+      <EmbeddedResource Include="icons\sound.bmp" />
+      <EmbeddedResource Include="icons\vs.bmp" />
+      <EmbeddedResource Include="icons\warn.bmp" />
       <EmbeddedResource Include="krab.bmp" />
+      <EmbeddedResource Include="startup.wav" />
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Cosmares" Version="1.2.0" />
         <PackageReference Include="Cosmos.Build" Version="0-*" NoWarn="NU1604" />
         <PackageReference Include="Cosmos.Common" Version="0.1.0-localbuild20240106083624" />
         <PackageReference Include="Cosmos.Core" Version="0.1.0-localbuild20240106083624" />

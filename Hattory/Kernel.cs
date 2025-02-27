@@ -1,17 +1,28 @@
-﻿using Cosmos.Core;
+﻿using COROS;
+using Cosmares;
+using Cosmos.Core;
 using Cosmos.Core.Multiboot;
 using Cosmos.HAL;
+using Cosmos.HAL.BlockDevice;
+using Cosmos.HAL.Drivers.Audio;
 using Cosmos.HAL.Drivers.Video;
 using Cosmos.System;
+using Cosmos.System.Audio.IO;
+using Cosmos.System.Audio;
 using Cosmos.System.FileSystem;
 using Cosmos.System.FileSystem.VFS;
 using Cosmos.System.Graphics;
 using IL2CPU.API.Attribs;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using ConsoleKeyy = Cosmos.System.ConsoleKeyEx;
 using sus = Cosmos.System;
+using Cosmos.HAL.Audio;
+using Cosmos.Debug.Kernel.Plugs.Asm;
+using System.Linq;
+using Cosmos.System.Audio.DSP.Processing;
 
 #pragma warning disable CA1416 // бля меня этот ебучий варнинг заебал
 
@@ -41,7 +52,13 @@ namespace Hattory
         public static bool issettingmenu = false; // menu with PC management tools
         public static bool shutdown; // Do you want to shutdown the computer?
         public static bool isColorfull = false; //paint activated?
+        public static bool isPragma = false; //paint activated?
         public static bool isguessit = false;
+        public static bool isExecute = false;
+        public static bool Render = true;
+        public static bool NoAC97msg = false;
+        public static bool NoAC97 = false;
+        public static bool isformat = false; //Are you want to FORMAT DISK!!!
 
         //====OTHER====
 
@@ -55,11 +72,40 @@ namespace Hattory
         public static int randomnum; //for guess it
         public static int globaldskcnt = 0; //current disk number
         public static Color colora; //system background color
+        public static string soundStr = "===-------"; //for guess it
         public static sus.FileSystem.CosmosVFS fs = new CosmosVFS(); //FS
         [ManifestResourceStream(ResourceName = "Hattory.krab.bmp")] public static byte[] krabsburger;
         [ManifestResourceStream(ResourceName = "Hattory.cursor.bmp")] public static byte[] tallc;
+        [ManifestResourceStream(ResourceName = "Hattory.chord.wav")] public static byte[] chor;
+        [ManifestResourceStream(ResourceName = "Hattory.startup.wav")] public static byte[] startu;
+        #region icons
+        [ManifestResourceStream(ResourceName = "Hattory.icons.calc.bmp")] public static byte[] calcI;
+        [ManifestResourceStream(ResourceName = "Hattory.icons.colorfull.bmp")] public static byte[] colorfullI;
+        [ManifestResourceStream(ResourceName = "Hattory.icons.fm.bmp")] public static byte[] fmI;
+        [ManifestResourceStream(ResourceName = "Hattory.icons.guess.bmp")] public static byte[] guessI;
+        [ManifestResourceStream(ResourceName = "Hattory.icons.info.bmp")] public static byte[] infoI;
+        [ManifestResourceStream(ResourceName = "Hattory.icons.sett.bmp")] public static byte[] settI;
+        [ManifestResourceStream(ResourceName = "Hattory.icons.vs.bmp")] public static byte[] vsI;
+        [ManifestResourceStream(ResourceName = "Hattory.icons.warn.bmp")] public static byte[] warnI;
+        [ManifestResourceStream(ResourceName = "Hattory.icons.sound.bmp")] public static byte[] soundI;
+        public static sus.Graphics.Bitmap calcIcon = new sus.Graphics.Bitmap(calcI);
+        public static sus.Graphics.Bitmap colorfullIcon = new sus.Graphics.Bitmap(colorfullI);
+        public static sus.Graphics.Bitmap fmIcon = new sus.Graphics.Bitmap(fmI);
+        public static sus.Graphics.Bitmap guessIcon = new sus.Graphics.Bitmap(guessI);
+        public static sus.Graphics.Bitmap infoIcon = new sus.Graphics.Bitmap(infoI);
+        public static sus.Graphics.Bitmap settIcon = new sus.Graphics.Bitmap(settI);
+        public static sus.Graphics.Bitmap vsIcon = new sus.Graphics.Bitmap(vsI);
+        public static sus.Graphics.Bitmap warnIcon = new sus.Graphics.Bitmap(warnI);
+        public static sus.Graphics.Bitmap soundIcon = new sus.Graphics.Bitmap(soundI);
+        #endregion
         public static sus.Graphics.Bitmap image = new sus.Graphics.Bitmap(krabsburger);
         public static sus.Graphics.Bitmap tc = new sus.Graphics.Bitmap(tallc);
+
+        public static AudioMixer mixer;
+        public static AC97 driver;
+        public static SeekableAudioStream stream;
+        public static AudioManager audioManager;
+        public static GainPostProcessor audioVolume = new GainPostProcessor(0.3f);
 
         //BEFORE RUN
         protected override void BeforeRun()
@@ -71,6 +117,8 @@ namespace Hattory
                 //canvas.DrawImage(BIMG, 0, 0);
                 //canvas.Display();
                 //Console.Beep(2000, 1000);
+                AHCI_DISK ahci_load = new();
+                ahci_load.Init();
                 try
                 {
                     VFSManager.RegisterVFS(fs);
@@ -101,6 +149,27 @@ namespace Hattory
                 sus.MouseManager.Y = sus.MouseManager.ScreenHeight / 2;
                 FpsShower.ShouldRender = true;
                 //Console.Beep(3000, 1000);
+                try
+                {
+                    driver = AC97.Initialize(4096);
+                    mixer = new AudioMixer()
+                    {
+                        SampleRate = 44100,
+                    };
+                    mixer.PostProcessors.Add(audioVolume);
+                    mixer.Streams.Add(new MemoryAudioStream(new SampleFormat(AudioBitDepth.Bits16, 2, true), 44100, Kernel.startu));
+                    audioManager = new AudioManager()
+                    {
+                        Stream = mixer,
+                        Output = driver
+                    };
+                    audioManager.Enable();
+                }
+                catch (Exception)
+                {
+                    NoAC97msg = true;
+                    NoAC97 = true;
+                }
             }
             catch (Exception e)
             {
@@ -203,6 +272,15 @@ namespace Hattory
                 //pysk
                 canvas.DrawFilledRectangle(Color.Indigo, 0, 0, 1024, 50);
                 canvas.DrawFilledCircle(Color.SlateBlue, 989, 25, 20);
+                //icons
+                canvas.DrawImageAlpha(settIcon, 150,5);
+                canvas.DrawImageAlpha(calcIcon, 200,5);
+                canvas.DrawImageAlpha(fmIcon, 250,5);
+                canvas.DrawImageAlpha(colorfullIcon, 300,5);
+                canvas.DrawImageAlpha(vsIcon, 350,5);
+                canvas.DrawImageAlpha(guessIcon, 400,5);
+                if(!NoAC97) { canvas.DrawImageAlpha(soundIcon, 846, 5); Otrisovka.Write(soundStr, 879, 13, Color.White); }
+                
                 //time
                 int mont;
                 mont = DateTime.Now.Month;
@@ -293,7 +371,7 @@ namespace Hattory
                     }
                 }
                 //taskman
-                if (ClickRight(645, 510, 150, 85))
+                if (ClickRight(869, 678, 150, 85))
                 {
                     if (istaskm == true)
                     {
@@ -301,7 +379,7 @@ namespace Hattory
                     }
                 }
                 //FileManager
-                if (ClickRight(10, 60, 270 + (Notepad.path.Length * 2), 250))
+                if (ClickRight(10, 60, 270 + (Notepad.path.Length * 2), 400))
                 {
                     if (isfilemanager == true && isformatsure == false)
                     {
@@ -325,10 +403,22 @@ namespace Hattory
                     }
                 }
                 //Guess It!
-                if (ClickRight(150, 100, 375, 200))
+                if (ClickRight(150, 100, 375, 130))
                 {
-                    klavaypr.On = true;
-                    isguessit = false;
+                    if(isguessit)
+                    {
+                        klavaypr.On = true;
+                        isguessit = false;
+                    }
+                }
+                //PragmaCode
+                if (ClickRight(30, 60, 550, 500))
+                {
+                    if (isPragma)
+                    {
+                        klavaypr.On = true;
+                        isPragma = false;
+                    }
                 }
 
                 #endregion
@@ -337,13 +427,234 @@ namespace Hattory
                 // CLICKS CLICKS CLICKS CLICKS CLICKS CLICKS |
                 //-------------------------------------------/
 
-
                 #region clicks
-
-                //====SettingMenu
-                if (Click(889, 52, 96, 15))
+                if (!isformat && !isformatsure && !isfilerename)
                 {
-                    if (ispysk)
+                    //====SettingMenu
+                    if (Click(889, 52, 96, 15))
+                    {
+                        if (ispysk)
+                        {
+                            if (!issettingmenu)
+                            {
+                                isfilemanager = false;
+                                shutdown = false;
+                                iscalcready = false;
+                                issettingmenu = true;
+                                ispysk = false; //knopka pysk
+                                ispcinfo = false; //pc information
+                                iscolors = false; //color changer
+                                iscalc = false; //calculator
+                                isdiskman = false; //disk manager
+                                isfilerename = false; //Are you want to rename file?
+                                isguessit = false;
+                                isColorfull = false;
+                                isPragma = false;
+                                if (isformatsure)
+                                {
+                                    Notepad.islock = false;
+                                    isformatsure = false; //Are you want to delete file?
+                                }
+                                else if (isfilerename)
+                                {
+                                    Notepad.islock = false;
+                                    Notepad.filename = "";
+                                    klavaypr.On = true;
+                                    isfilerename = false;
+                                }
+                            }
+                        }
+                    }
+                    //====FILE MANAGER
+                    if (Click(889, 67, 112, 15))
+                    {
+                        if (ispysk)
+                        {
+                            if (!isfilemanager)
+                            {
+                                isfilemanager = true;
+                                Notepad.path = @"Partitions on disk:";
+                                shutdown = false;
+                                iscalcready = false;
+                                issettingmenu = false;
+                                ispysk = false; //knopka pysk
+                                ispcinfo = false; //pc information
+                                iscolors = false; //color changer
+                                iscalc = false; //calculator
+                                isdiskman = false; //disk manager
+                                isfilerename = false; //Are you want to rename file?
+                                isguessit = false;
+                                isColorfull = false;
+                                isPragma = false;
+                                if (isformatsure)
+                                {
+                                    Notepad.islock = false;
+                                    isformatsure = false; //Are you want to delete file?
+                                }
+                                else if (isfilerename)
+                                {
+                                    Notepad.islock = false;
+                                    Notepad.filename = "";
+                                    klavaypr.On = true;
+                                    isfilerename = false;
+                                }
+                            }
+                        }
+                    }
+                    //====CALCULATOR
+                    if (Click(889, 82, 96, 15))
+                    {
+                        if (ispysk == true)
+                        {
+                            if (iscalc == false)
+                            {
+                                isfilemanager = false;
+                                c = 0;
+                                firstI = 0;
+                                secondI = 0;
+                                first = "";
+                                second = "";
+                                shutdown = false;
+                                iscalcready = false;
+                                issettingmenu = false;
+                                ispysk = false; //knopka pysk
+                                ispcinfo = false; //pc information
+                                iscolors = false; //color changer
+                                iscalc = true; //calculator
+                                isdiskman = false; //disk manager
+                                isfilerename = false; //Are you want to rename file?
+                                isguessit = false;
+                                isColorfull = false;
+                                isPragma = false;
+                                if (isformatsure)
+                                {
+                                    Notepad.islock = false;
+                                    isformatsure = false; //Are you want to delete file?
+                                }
+                                else if (isfilerename)
+                                {
+                                    Notepad.islock = false;
+                                    Notepad.filename = "";
+                                    klavaypr.On = true;
+                                    isfilerename = false;
+                                }
+                            }
+                        }
+                    }
+                    //====Guess It!
+                    if (Click(889, 98, 72, 15))
+                    {
+                        if (ispysk)
+                        {
+                            if (!isguessit)
+                            {
+                                isfilemanager = false;
+                                shutdown = false;
+                                iscalcready = false;
+                                issettingmenu = false;
+                                ispysk = false; //knopka pysk
+                                ispcinfo = false; //pc information
+                                iscolors = false; //color changer
+                                iscalc = false; //calculator
+                                isdiskman = false; //disk manager
+                                isfilerename = false; //Are you want to rename file?
+                                isguessit = true;
+                                klavaypr.On = false;
+                                randomnum = new Random().Next(0, 101);
+                                status = "New number has made";
+                                enterrednum = "";
+                                isColorfull = false;
+                                isPragma = false;
+                                if (isformatsure)
+                                {
+                                    Notepad.islock = false;
+                                    isformatsure = false; //Are you want to delete file?
+                                }
+                                else if (isfilerename)
+                                {
+                                    Notepad.islock = false;
+                                    Notepad.filename = "";
+                                    klavaypr.On = true;
+                                    isfilerename = false;
+                                }
+                            }
+                        }
+                    }
+                    //====colorfull
+                    if (Click(889, 114, 72, 15))
+                    {
+                        if (ispysk)
+                        {
+                            if (!isColorfull)
+                            {
+                                isfilemanager = false;
+                                shutdown = false;
+                                iscalcready = false;
+                                issettingmenu = false;
+                                ispysk = false; //knopka pysk
+                                ispcinfo = false; //pc information
+                                iscolors = false; //color changer
+                                iscalc = false; //calculator
+                                isdiskman = false; //disk manager
+                                isfilerename = false; //Are you want to rename file?
+                                isguessit = false;
+                                isColorfull = true;
+                                isPragma = false;
+                                if (isformatsure)
+                                {
+                                    Notepad.islock = false;
+                                    isformatsure = false; //Are you want to delete file?
+                                }
+                                else if (isfilerename)
+                                {
+                                    Notepad.islock = false;
+                                    Notepad.filename = "";
+                                    klavaypr.On = true;
+                                    isfilerename = false;
+                                }
+                            }
+                        }
+                    }
+                    //====PragmaCode
+                    if (Click(889, 130, 120, 15))
+                    {
+                        if (ispysk)
+                        {
+                            if (!isPragma)
+                            {
+                                isExecute = false;
+                                isfilemanager = false;
+                                shutdown = false;
+                                iscalcready = false;
+                                issettingmenu = false;
+                                ispysk = false; //knopka pysk
+                                ispcinfo = false; //pc information
+                                iscolors = false; //color changer
+                                iscalc = false; //calculator
+                                isdiskman = false; //disk manager
+                                isfilerename = false; //Are you want to rename file?
+                                isguessit = false;
+                                isColorfull = false;
+                                klavaypr.On = false;
+                                isPragma = true;
+                                if (isformatsure)
+                                {
+                                    Notepad.islock = false;
+                                    isformatsure = false; //Are you want to delete file?
+                                }
+                                else if (isfilerename)
+                                {
+                                    Notepad.islock = false;
+                                    Notepad.filename = "";
+                                    klavaypr.On = true;
+                                    isfilerename = false;
+                                }
+                            }
+                        }
+                    }
+
+                    // Иконки
+                    if (Click(150, 5, 32, 32))
                     {
                         if (!issettingmenu)
                         {
@@ -359,6 +670,7 @@ namespace Hattory
                             isfilerename = false; //Are you want to rename file?
                             isguessit = false;
                             isColorfull = false;
+                            isPragma = false;
                             if (isformatsure)
                             {
                                 Notepad.islock = false;
@@ -373,15 +685,13 @@ namespace Hattory
                             }
                         }
                     }
-                }
-                //====FILE MANAGER
-                if (Click(889, 67, 112, 15))
-                {
-                    if (ispysk)
+                    //====FILE MANAGER
+                    if (Click(250, 5, 32, 32))
                     {
                         if (!isfilemanager)
                         {
                             isfilemanager = true;
+                            Notepad.path = @"Partitions on disk:";
                             shutdown = false;
                             iscalcready = false;
                             issettingmenu = false;
@@ -393,6 +703,7 @@ namespace Hattory
                             isfilerename = false; //Are you want to rename file?
                             isguessit = false;
                             isColorfull = false;
+                            isPragma = false;
                             if (isformatsure)
                             {
                                 Notepad.islock = false;
@@ -407,11 +718,8 @@ namespace Hattory
                             }
                         }
                     }
-                }
-                //====CALCULATOR
-                if (Click(889, 82, 96, 15))
-                {
-                    if (ispysk == true)
+                    //====CALCULATOR
+                    if (Click(200, 5, 32, 32))
                     {
                         if (iscalc == false)
                         {
@@ -432,6 +740,7 @@ namespace Hattory
                             isfilerename = false; //Are you want to rename file?
                             isguessit = false;
                             isColorfull = false;
+                            isPragma = false;
                             if (isformatsure)
                             {
                                 Notepad.islock = false;
@@ -446,13 +755,10 @@ namespace Hattory
                             }
                         }
                     }
-                }
-                //====Guess It!
-                if (Click(889, 98, 72, 15))
-                {
-                    if (ispysk)
+                    //====Guess It!
+                    if (Click(400, 5, 32, 32))
                     {
-                        if (!issettingmenu)
+                        if (!isguessit)
                         {
                             isfilemanager = false;
                             shutdown = false;
@@ -470,6 +776,7 @@ namespace Hattory
                             status = "New number has made";
                             enterrednum = "";
                             isColorfull = false;
+                            isPragma = false;
                             if (isformatsure)
                             {
                                 Notepad.islock = false;
@@ -484,11 +791,8 @@ namespace Hattory
                             }
                         }
                     }
-                }
-                //====colorfull
-                if (Click(889, 114, 72, 15))
-                {
-                    if (ispysk)
+                    //====colorfull
+                    if (Click(300, 5, 32, 32))
                     {
                         if (!isColorfull)
                         {
@@ -504,6 +808,7 @@ namespace Hattory
                             isfilerename = false; //Are you want to rename file?
                             isguessit = false;
                             isColorfull = true;
+                            isPragma = false;
                             if (isformatsure)
                             {
                                 Notepad.islock = false;
@@ -518,24 +823,14 @@ namespace Hattory
                             }
                         }
                     }
-                }
-                //====disable pysk
-                if (sus.MouseManager.MouseState == sus.MouseState.Right)
-                {
-                    if (ispysk == true)
+                    //====PragmaCode
+                    if (Click(350, 5, 32, 32))
                     {
-                        ispysk = false;
-                    }
-                }
-                //====shutdown
-                if (Click(889, 150, 30, 30))
-                {
-                    if (ispysk)
-                    {
-                        if (!shutdown)
+                        if (!isPragma)
                         {
+                            isExecute = false;
                             isfilemanager = false;
-                            shutdown = true;
+                            shutdown = false;
                             iscalcready = false;
                             issettingmenu = false;
                             ispysk = false; //knopka pysk
@@ -546,30 +841,134 @@ namespace Hattory
                             isfilerename = false; //Are you want to rename file?
                             isguessit = false;
                             isColorfull = false;
+                            klavaypr.On = false;
+                            isPragma = true;
                             if (isformatsure)
                             {
-                                isformatsure = false; //Are you want to delete file?
                                 Notepad.islock = false;
+                                isformatsure = false; //Are you want to delete file?
                             }
                             else if (isfilerename)
                             {
-                                isfilerename = false;
                                 Notepad.islock = false;
                                 Notepad.filename = "";
                                 klavaypr.On = true;
+                                isfilerename = false;
                             }
                         }
                     }
-                }
-                //=====rebbot
-                if (Click(929, 150, 30, 30))
-                {
-                    if (ispysk == true)
+                    //====Volume
+                    if (!NoAC97)
                     {
-                        sus.Power.Reboot();
+                        if (Click(846, 5, 33, 33))
+                        {
+                            soundStr = "----------";
+                            audioVolume.Gain = 0.0f;
+    }
+                        if (Click(879, 13, 8, 16))
+                        {
+                            soundStr = "=---------";
+                            audioVolume.Gain = 0.1f;
+                        }
+                        if (Click(887, 13, 8, 16))
+                        {
+                            soundStr = "==--------";
+                            audioVolume.Gain = 0.2f;
+                        }
+                        if (Click(895, 13, 8, 16))
+                        {
+                            soundStr = "===-------";
+                            audioVolume.Gain = 0.3f;
+                        }
+                        if (Click(903, 13, 8, 16))
+                        {
+                            soundStr = "====------";
+                            audioVolume.Gain = 0.4f;
+                        }
+                        if (Click(911, 13, 8, 16))
+                        {
+                            soundStr = "=====-----";
+                            audioVolume.Gain = 0.5f;
+                        }
+                        if (Click(919, 13, 8, 16))
+                        {
+                            soundStr = "======----";
+                            audioVolume.Gain = 0.6f;
+                        }
+                        if (Click(927, 13, 8, 16))
+                        {
+                            soundStr = "=======---";
+                            audioVolume.Gain = 0.7f;
+                        }
+                        if (Click(935, 13, 8, 16))
+                        {
+                            soundStr = "========--";
+                            audioVolume.Gain = 0.8f;
+                        }
+                        if (Click(943, 13, 8, 16))
+                        {
+                            soundStr = "=========-";
+                            audioVolume.Gain = 0.9f;
+                        }
+                        if (Click(951, 13, 8, 16))
+                        {
+                            soundStr = "==========";
+                            audioVolume.Gain = 1.0f;
+                        }
+                    }
+
+                    //====disable pysk
+                    if (sus.MouseManager.MouseState == sus.MouseState.Right)
+                    {
+                        if (ispysk == true)
+                        {
+                            ispysk = false;
+                        }
+                    }
+                    //====shutdown
+                    if (Click(889, 150, 30, 30))
+                    {
+                        if (ispysk)
+                        {
+                            if (!shutdown)
+                            {
+                                isfilemanager = false;
+                                shutdown = true;
+                                iscalcready = false;
+                                issettingmenu = false;
+                                ispysk = false; //knopka pysk
+                                ispcinfo = false; //pc information
+                                iscolors = false; //color changer
+                                iscalc = false; //calculator
+                                isdiskman = false; //disk manager
+                                isfilerename = false; //Are you want to rename file?
+                                isguessit = false;
+                                isColorfull = false;
+                                isPragma = false;
+                                if (isformatsure)
+                                {
+                                    isformatsure = false; //Are you want to delete file?
+                                    Notepad.islock = false;
+                                }
+                                else if (isfilerename)
+                                {
+                                    isfilerename = false;
+                                    Notepad.islock = false;
+                                    Notepad.filename = "";
+                                    klavaypr.On = true;
+                                }
+                            }
+                        }
+                    }
+                    //=====reboot
+                    if (Click(929, 150, 30, 30))
+                    {
+                        if (ispysk == true)
+                        {
+                            sus.Power.Reboot();
+                        }
                     }
                 }
-
                 #endregion
 
                 // ---------------------------------------------\
@@ -752,8 +1151,9 @@ namespace Hattory
                     Otrisovka.Write("Calculator", 889, 84, Color.White);
                     Otrisovka.Write("Guess It!", 889, 100, Color.White);
                     Otrisovka.Write("ColorFull", 889, 116, Color.White);
-                    canvas.DrawFilledRectangle(Color.Crimson, 889, 150, 30, 30);
-                    canvas.DrawFilledRectangle(Color.OrangeRed, 929, 150, 30, 30);
+                    Otrisovka.Write("Visual Stupidio", 889, 132, Color.White);
+                    canvas.DrawFilledCircle(Color.Crimson, 904, 165, 15);
+                    canvas.DrawFilledCircle(Color.OrangeRed, 944, 165, 15);
                     //------------------------------
                 }
                 //=====HARDWARE MONITOR
@@ -782,6 +1182,7 @@ namespace Hattory
                         canvas.DrawFilledRectangle(Color.Purple, 10, 60, 300, 125);
                         Otrisovka.Write("Disks: " + "current - " + globaldskcnt, 15, 65, Color.Black);
                         var diskslist = VFSManager.GetDisks();
+                        List<ManagedPartition> part = new List<ManagedPartition>();
                         int iznai = 80;
                         int dskcnt = 0;
                         foreach (var disk in diskslist)
@@ -790,19 +1191,16 @@ namespace Hattory
                             if (Click(15, iznai, 36, 16))
                             {
                                 globaldskcnt = dskcnt;
-                                Notepad.path = dskcnt + @":\";
                                 isfilemanager = true;
                                 isdiskman = false;
                             }
-                            /*try
+                            if (ClickMiddle(15, iznai, 36, 16))
                             {
-                                disk.Mount();
+                                globaldskcnt = dskcnt;
+                                isformat = true;
+                                mixer.Streams.Add(new MemoryAudioStream(new SampleFormat(AudioBitDepth.Bits16, 2, true), 44100, Kernel.chor));
+                                isdiskman = false;
                             }
-                            catch (Exception) { }
-                            if (ClickRight(15, iznai, 36, 9))
-                            {
-                                isformatsure = true;
-                            }*/
                             dskcnt += 1;
                             iznai += 16;
                         }
@@ -813,6 +1211,7 @@ namespace Hattory
                 if (isguessit == true)
                 {
                     //Code generated by HattoryWindowCreator
+                    klavaypr.On = false;
                     canvas.DrawFilledRectangle(Color.DarkGray, 150, 100, 375, 130); //window background
                     canvas.DrawFilledRectangle(Color.Gray, 415, 140, 100, 75); //button
                     canvas.DrawFilledRectangle(Color.Gray, 153, 181, 200, 15);
@@ -872,6 +1271,52 @@ namespace Hattory
                         randomnum = new System.Random().Next(0, 101);
                         status = "New number has made";
                         enterrednum = "";
+                    }
+                }
+                //======FORMAT DISK
+                if (isformat == true)
+                {
+                    canvas.DrawFilledRectangle(Color.LightGray, 400, 240, 100, 50); // 270, 200
+                    Otrisovka.Write("FORMAT DISK?", 405, 245, Color.Black);
+                    canvas.DrawFilledRectangle(Color.DarkGray, 415, 260, 35, 25);
+                    Otrisovka.Write("Yes", 420, 270, Color.Black);
+                    canvas.DrawFilledRectangle(Color.DarkGray, 455, 260, 35, 25);
+                    Otrisovka.Write("No", 465, 270, Color.Black);
+                    if (Click(415, 260, 35, 25))
+                    {
+                        try
+                        {
+                            if (fs.Disks[globaldskcnt].IsMBR) {
+                                fs.Disks[globaldskcnt].Clear();
+                                fs.Disks[globaldskcnt].CreatePartition((int)fs.Disks[globaldskcnt].Size - 10);
+                                fs.Disks[globaldskcnt].FormatPartition(0, "FAT32");
+                                if (!fs.Disks[globaldskcnt].Partitions[0].HasFileSystem) { throw new Exception("Unknown FS detected."); }
+                                FpsShower.Msg("Disk formated successfully!");
+                                FpsShower.playSound = true;
+                                isformat = false;
+                            }
+                            else
+                            {
+                                Setup.GPT2MBR(fs.Disks[globaldskcnt]);
+                                fs.Disks[globaldskcnt].Clear();
+                                fs.Disks[globaldskcnt].CreatePartition((int)fs.Disks[globaldskcnt].Size - 10);
+                                fs.Disks[globaldskcnt].FormatPartition(0, "FAT32");
+                                FpsShower.Msg("Disk formated successfully!", "GPT -> MBR");
+                                FpsShower.playSound = true;
+                                isformat = false;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            FpsShower.Msg("Critical error happened!", e.ToString(), false);
+                            FpsShower.playSound = true;
+                            isformat = false;
+                        }
+                        
+                    }
+                    if (Click(455, 260, 35, 25))
+                    {
+                        isformat = false;
                     }
                 }
                 //======SureDelete
@@ -950,10 +1395,20 @@ namespace Hattory
                     }
                     catch (Exception) { }
                 }
-
+                //=====Colorfull
                 if (isColorfull)
                 {
                     Colorfull.Start();
+                }
+                //=====PragmaCode
+                if (isPragma)
+                {
+                    PragmaCode.Pragma();
+                }
+                //=====PragmaExecute
+                if (isExecute)
+                {
+                    PragmaInterpritator.Execute();
                 }
 
                 #endregion
@@ -969,20 +1424,25 @@ namespace Hattory
                 Otrisovka.Write(montt, 5, 17, Color.White);
                 Otrisovka.Write(DateTime.Now.Day.ToString() + "th " + DateTime.Now.Year.ToString(), 5, 33, Color.White);
                 //mouse
+                if (NoAC97msg)
+                {
+                    FpsShower.Msg("AC97 sound card not found", "Speaker will be used", false);
+                    FpsShower.playSound = true;
+                    NoAC97msg = false;
+                }
+                FpsShower.msgEngine();
                 try
                 {
                     canvas.DrawImageAlpha(tc, (int)sus.MouseManager.X, (int)sus.MouseManager.Y);
                 }
                 catch (Exception) { }
                 klavaypr.control();
-                canvas.Display();
+                if (Render) { canvas.Display(); }
                 Cosmos.Core.Memory.Heap.Collect();
-
                 #endregion
             }
             catch (Exception e)
             {
-                sus.PCSpeaker.Beep();
                 //Only for debug
                 //canvas.Disable();
                 //System.Console.WriteLine(e.ToString());

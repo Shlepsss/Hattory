@@ -1,4 +1,6 @@
-﻿using ConsoleKeyy = Cosmos.System.ConsoleKeyEx;
+﻿using Cosmos.Core;
+using System.Drawing;
+using ConsoleKeyy = Cosmos.System.ConsoleKeyEx;
 using sus = Cosmos.System;
 #pragma warning disable CA1416 // Проверка совместимости платформы
 
@@ -54,6 +56,14 @@ namespace Hattory
             else if (k.Key == ConsoleKeyy.LeftArrow)
             {
                 sus.MouseManager.X -= 7;
+            }
+            else if (k.Key == ConsoleKeyy.F2)
+            {
+                Kernel.Render = false;
+            }
+            else if (k.Key == ConsoleKeyy.F3)
+            {
+                Kernel.Render = true;
             }
             /*if (k.Key == ConsoleKeyy.D3)
             {
@@ -112,6 +122,14 @@ namespace Hattory
                 else if (k.Key == ConsoleKeyy.LeftArrow)
                 {
                     sus.MouseManager.X -= 7;
+                }
+                else if (k.Key == ConsoleKeyy.F2)
+                {
+                    Kernel.Render = false;
+                }
+                else if (k.Key == ConsoleKeyy.F3)
+                {
+                    Kernel.Render = true;
                 }
             }
         }
