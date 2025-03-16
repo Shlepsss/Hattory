@@ -108,10 +108,10 @@ namespace Hattory
                                 }
                                 if (pathhh.EndsWith(".wav", true, null))
                                 {
-                                    txta = File.ReadAllText(path + @"\" + pathhh);
-                                    Colorfull.Loadd(txta);
-                                    Kernel.isColorfull = true;
-                                    Kernel.isfilemanager = false;
+                                    //txta = File.ReadAllText(path + @"\" + pathhh);
+                                    //Colorfull.Loadd(txta);
+                                    //Kernel.isColorfull = true;
+                                    //Kernel.isfilemanager = false;
                                 }
                                 if (pathhh.EndsWith(".bmp", true, null))
                                 {
@@ -173,8 +173,8 @@ namespace Hattory
             {
                 sus.KeyEvent k;
                 bool IsKeyPressed = sus.KeyboardManager.TryReadKey(out k);
-                Otrisovka.Write("Redact " + pathFile + ":", 10, 330, Color.Red);
-                Otrisovka.Write(txta, 10, 350, Color.White);
+                Otrisovka.Write("Redact " + pathFile + ":", 10, 480, Color.Red);
+                Otrisovka.Write(txta, 10, 500, Color.White);
                 klavaypr.YPRklava(k);
                 if (k.Key == ConsoleKeyy.Spacebar)
                 {
