@@ -1,5 +1,8 @@
-PRAGMA Programming Language Documentation
-Assignments:
+# _PRAGMA Docs_
+_PRAGMA Programming Language Documentation_
+
+**Assignments:**
+
 || - next argument in function.
 ```
 set X||25
@@ -12,7 +15,8 @@ plus X||&&Y
 text &&X||&&Y||&&Text||&&Color
 ```
 
-Variables, Conditions, Stop Code:
+**Variables, Conditions, Stop Code:**
+
 var – create an any type (integer, string) variable.
 var Name
 ```
@@ -52,10 +56,6 @@ stop
 stop
 ```
 
-
-
-
-
 Example of variables and conditions
 ```
 var X
@@ -72,9 +72,9 @@ if Y == Hi
 endcond
 ```
 
-Graphics functions:
+**Graphics functions:**
 
-You can take color name from HTML color names.
+> You can take color name from HTML color names.
 
 text – create text on screen.
 text X||Y||Text||Color
@@ -100,7 +100,7 @@ pixel X||Y||Color
 pixel 100||500||Purple
 ```
 
-Interact with PC:
+**Interact with PC:**
 
 shutdown – shutdown a PC.
 shutdown
@@ -120,7 +120,8 @@ beep Frequency (in Hertz)||Duration (in milliseconds)
 beep 1000||50
 ```
 
-Math operations:
+**Math operations:**
+
 plus – plus math operation.
 plus Variable Name||Value (can be variable, use &&)
 ```
