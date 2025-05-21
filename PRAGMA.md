@@ -38,6 +38,12 @@ if Text == Hello
 if Y < 50
 ```
 
+if mouse cia - checks a click in typed area.
+if mouse cia x||y||width||height
+```
+if mouse cia 0||0||100||100
+```
+
 else – starts an else construction (unless condition).
 else
 ```
@@ -118,6 +124,14 @@ beep – make beep sound from PC speaker.
 beep Frequency (in Hertz)||Duration (in milliseconds)
 ```
 beep 1000||50
+```
+
+msg - Call a message on screen.
+msg text1||text2||type
+type can be w (warning) or i (info)
+```
+msg PRAGMA top!||Maybe...||i
+msg Your PC eat a cake||PC will explode soon||w
 ```
 
 **Math operations:**
