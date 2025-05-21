@@ -59,24 +59,24 @@ namespace Hattory
         /// <summary>
         /// переменная type: true - сообщение, false - предупреждение
         /// </summary>
-        public static void Msg(string message, string message2 = "" , bool type = true)
+        public static void Msg(string message, string message2 = "" , bool IsInfo = true)
         {
             messag = message;
             messag2 = message2;
-            typ = type;
+            typ = IsInfo;
             showmsg = true;
             Kernel.canvas.DrawFilledRectangle(System.Drawing.Color.Gray, 392, 334, 240, 100);
             Otrisovka.Write(message, 400, 345, System.Drawing.Color.White);
             Otrisovka.Write(message2, 400, 365, System.Drawing.Color.White);
             Kernel.canvas.DrawFilledRectangle(System.Drawing.Color.DarkGray, 482, 394, 60, 30);
             Otrisovka.Write("OK", 504, 399, System.Drawing.Color.White);
-            if (type) { Kernel.canvas.DrawImageAlpha(Kernel.infoIcon, 398, 390); }
+            if (IsInfo) { Kernel.canvas.DrawImageAlpha(Kernel.infoIcon, 398, 390); }
             else { Kernel.canvas.DrawImageAlpha(Kernel.warnIcon, 417, 380); }
             if (playSound)
             {
                 if (Kernel.NoAC97)
                 {
-                    if (type) { Beep(1150, 50); }
+                    if (IsInfo) { Beep(1150, 50); }
                     else {
                         Beep(600, 60);
                         Beep(850, 40);

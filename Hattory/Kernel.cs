@@ -62,6 +62,7 @@ namespace Hattory
 
         //====OTHER====
 
+        public static Color colorOfPanel = Color.Indigo;
         public static string first; //for calculator
         public static string second; //for calculator
         public static float firstI; //for calculator
@@ -72,7 +73,7 @@ namespace Hattory
         public static int randomnum; //for guess it
         public static int globaldskcnt = 0; //current disk number
         public static Color colora; //system background color
-        public static string soundStr = "===-------"; //for guess it
+        public static string soundStr = "===-------"; //sound
         public static sus.FileSystem.CosmosVFS fs = new CosmosVFS(); //FS
         [ManifestResourceStream(ResourceName = "Hattory.krab.bmp")] public static byte[] krabsburger;
         [ManifestResourceStream(ResourceName = "Hattory.cursor.bmp")] public static byte[] tallc;
@@ -267,10 +268,10 @@ namespace Hattory
                 //oboi
                 if (oboi == true)
                 {
-                    canvas.DrawImage(image, 0, 0);
+                    canvas.DrawImage(image, 512 - (int)(0.5 * image.Width), 384 - (int)(0.5 * image.Height));
                 }
                 //pysk
-                canvas.DrawFilledRectangle(Color.Indigo, 0, 0, 1024, 50);
+                canvas.DrawFilledRectangle(colorOfPanel, 0, 0, 1024, 50);
                 canvas.DrawFilledCircle(Color.SlateBlue, 989, 25, 20);
                 //icons
                 canvas.DrawImageAlpha(settIcon, 150,5);
@@ -379,7 +380,7 @@ namespace Hattory
                     }
                 }
                 //FileManager
-                if (ClickRight(10, 60, 270 + (Notepad.path.Length * 2), 400))
+                if (ClickRight(10, 60, 140, 400))
                 {
                     if (isfilemanager == true && isformatsure == false)
                     {
@@ -1102,6 +1103,7 @@ namespace Hattory
                 //===COLOR CHANGER
                 if (iscolors == true)
                 {
+                    Otrisovka.Write("Left click for wallpaper, Middle Click for top panel.", 30,150, Color.White);
                     canvas.DrawFilledRectangle(Color.LightGray, 30, 60, 270, 75);
                     canvas.DrawFilledRectangle(Color.MidnightBlue, 35, 65, 75, 30);
                     canvas.DrawFilledRectangle(Color.Black, 115, 65, 75, 30);
@@ -1140,6 +1142,27 @@ namespace Hattory
                     if (Click(195, 100, 75, 30))
                     {
                         colora = Color.Teal;
+                    }
+
+                    if (ClickMiddle(35, 65, 75, 30))
+                    {
+                        colorOfPanel = Color.MidnightBlue;
+                    }
+                    if (ClickMiddle(195, 65, 75, 30))
+                    {
+                        colorOfPanel = Color.Navy;
+                    }
+                    if (ClickMiddle(35, 100, 75, 30))
+                    {
+                        colorOfPanel = Color.DarkSlateGray;
+                    }
+                    if (ClickMiddle(115, 100, 75, 30))
+                    {
+                        colorOfPanel = Color.Black;
+                    }
+                    if (ClickMiddle(195, 100, 75, 30))
+                    {
+                        colorOfPanel = Color.Teal;
                     }
                 }
                 //=====KNOPKA PUSK

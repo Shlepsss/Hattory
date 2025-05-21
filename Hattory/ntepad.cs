@@ -119,9 +119,30 @@ namespace Hattory
                                     {
                                         bite = File.ReadAllBytes(path + @"\" + pathhh);
                                         image = new sus.Graphics.Bitmap(bite);
-                                        if (image.Width <= 1100 && image.Height <= 700 && isendedbmp == true)
+                                        if (isendedbmp == true)
                                         {
-                                            isendedbmp = false;
+                                            if (image.Width <= 512 && image.Height <= 512)
+                                            {
+                                                if (image.Depth == ColorDepth.ColorDepth32)
+                                                {
+                                                    isendedbmp = false;
+                                                }
+                                                else
+                                                {
+                                                    FpsShower.Msg("Not 32 bit depth!", "Only 32 bit depth supported!", false);
+                                                    FpsShower.playSound = true;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                FpsShower.Msg("Image has very big resolution", "512x512 max. supported!", false);
+                                                FpsShower.playSound = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            FpsShower.Msg("Another image has opened!", "Close another image!", true);
+                                            FpsShower.playSound = true;
                                         }
                                     }
                                     catch (Exception) { }
@@ -140,6 +161,24 @@ namespace Hattory
                             }
                             catch (Exception) { }
                         }
+                        //ChangeBackground
+                        else if (Hattory.Kernel.ClickRight(150, iznai, pathhh.Length * 8, 15))
+                        {
+                            if (pathhh.EndsWith(".bmp", true, null))
+                            {
+                                bite = File.ReadAllBytes(path + @"\" + pathhh);
+                                image = new sus.Graphics.Bitmap(bite);
+                                if (image.Height <= 768 && image.Width <= 1024 && image.Depth == ColorDepth.ColorDepth32)
+                                {
+                                    Kernel.image = image;
+                                }
+                                else
+                                {
+                                    FpsShower.Msg("Image has very big resolution", "Or not 32x bit depth", false);
+                                    FpsShower.playSound = true;
+                                }
+                            }
+                        }
                         iznai += 16;
                     }
                     //RENAME
@@ -157,6 +196,20 @@ namespace Hattory
                     if (isendedbmp == false)
                     {
                         canvas.DrawImageAlpha(image, 350, 60);
+                        canvas.DrawFilledRectangle(Color.Gray, 50, 470, 150, 30);
+                        Otrisovka.Write("Set as background", 55, 475, Color.Black);
+                        if(Kernel.Click(50, 470, 150, 30))
+                        {
+                            if (image.Height <= 768 && image.Width <= 1024 && image.Depth == ColorDepth.ColorDepth32)
+                            {
+                                Kernel.image = image;
+                            }
+                            else
+                            {
+                                FpsShower.Msg("Image has very big resolution", "Or not 32x bit depth", false);
+                                FpsShower.playSound = true;
+                            }
+                        }
                         if (Hattory.Kernel.ClickRight(350, 60, (int)image.Width, (int)image.Height))
                         {
                             isendedbmp = true;

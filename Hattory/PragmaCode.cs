@@ -25,8 +25,8 @@ namespace Hattory
         static public List<string> code = new List<string>(); // весь код в листе
         static public void Pragma()
         {
-            lol.canvas.DrawFilledRectangle(Color.FromArgb(75, 75, 75), 30, 60, 550, 500);
-            Otrisovka.Write("Visual Stupidio IDE: Tab - save, F1 - run, Esc - exit", 70, 70, Color.SpringGreen);
+            lol.canvas.DrawFilledRectangle(Color.FromArgb(75, 75, 75), 30, 60, 625, 500);
+            Otrisovka.Write("Visual Stupidio IDE: Tab - save, F1 - run, Esc - exit, F5 - clear", 70, 70, Color.SpringGreen);
             earlyyy = 90;
             earlystroka = 1;
             foreach (string s in code)
@@ -51,6 +51,13 @@ namespace Hattory
                 {
                     if (stroka.Length > 0) { stroka = stroka.Remove(stroka.Length - 1); }
                 } // Бек спейс
+                else if (k.Key == ConsoleKeyy.F5)
+                {
+                    code.Clear();
+                    yy = 90;
+                    nowstroka = 1;
+                    stroka = "";
+                } // Удалить весь код
                 else if (k.Key == ConsoleKeyy.F1) 
                 {
                     PragmaInterpritator.code = code;

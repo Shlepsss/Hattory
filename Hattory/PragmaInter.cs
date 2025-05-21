@@ -67,11 +67,11 @@ namespace Hattory
                     } // ELSE без IF
 
                     // MAIN CODE
-
                     if ((!inIf) || (inIf && IfTrue) || (inElse)) 
                     {
                         #region graphics
-                        if (lin.StartsWith("text ", true, null))
+                        if(lin == null || lin == "") { } // Пустая строка
+                        else if (lin.StartsWith("text ", true, null))
                         {
                             lin = lin.Substring(5);
                             string[] parts = lin.Split("||");
@@ -255,15 +255,23 @@ namespace Hattory
                         {
                             Kernel.isExecute = false;
                         } // ОСТАНОВИТЬ КОД
+                        else if (lin.StartsWith("msg ", true, null))
+                        {
+                            lin = lin.Remove(0, 4);
+                            string str1 = lin.Split("||")[0].Trim();
+                            string str2 = lin.Split("||")[1].Trim();
+                            string type = lin.Split("||")[2].Trim();
+                            if(type == "i") { FpsShower.Msg(str1, str2); FpsShower.playSound = true; } // info
+                            else if(type == "w") { FpsShower.Msg(str1, str2, false); FpsShower.playSound = true; } // warning
+                        } // ВЫВЕСТИ СООБЩЕНИЕ НА ЭКРАН
                         else if (lin.StartsWith("beep ", true, null))
                         {
                             lin = lin.Remove(0, 5);
                             int hz = int.Parse(lin.Split("||")[0].Trim());
                             int sec = int.Parse(lin.Split("||")[1].Trim());
-                            System.Console.Beep(hz, sec);
+                            Cosmos.System.PCSpeaker.Beep((uint)hz, (uint)sec);
                         } // СПИКЕР ПК
                         #endregion
-                        // ДОДЕЛАТЬ: ПРОВЕРКУ КЛИКА ПО КООРДИНАТАМ
                         #region code
                         else if (lin.StartsWith("var ", true, null))
                         {
@@ -291,54 +299,66 @@ namespace Hattory
                             string name = lin.Split(" ")[0].Trim();
                             string op = lin.Split(" ")[1].Trim();
                             string comp = lin.Split(" ")[2].Trim();
-                            foreach (var item in variables)
+                            if(name == "mouse" && op == "cia")
                             {
-                                if (item.Split(':')[0] == name)
+                                inIf = true;
+                                if (Kernel.Click(int.Parse(comp.Split("||")[0].Trim()), int.Parse(comp.Split("||")[1].Trim()), int.Parse(comp.Split("||")[2].Trim()), int.Parse(comp.Split("||")[3].Trim())))
                                 {
-                                    if (op == ">" || op == "<" || op == "==") 
+                                    IfTrue = true;
+                                }
+                                else { IfTrue = false; }
+                            }
+                            else
+                            {
+                                foreach (var item in variables)
+                                {
+                                    if (item.Split(':')[0] == name)
                                     {
-                                        inIf = true;
-                                        if (op == ">")
+                                        if (op == ">" || op == "<" || op == "==")
                                         {
-                                            if (int.Parse(item.Split(':')[1]) > int.Parse(lin.Split(" ")[2]))
+                                            inIf = true;
+                                            if (op == ">")
                                             {
-                                                IfTrue = true;
-                                            }
-                                            else { IfTrue = false; }
-                                        } // Int
-                                        else if (op == "<")
-                                        {
-                                            if (int.Parse(item.Split(':')[1]) < int.Parse(lin.Split(" ")[2]))
-                                            {
-                                                IfTrue = true;
-                                            }
-                                            else { IfTrue = false; }
-                                        } // Int
-                                        else if (op == "==")
-                                        {
-                                            try 
-                                            {
-                                                if (int.Parse(item.Split(':')[1]) == int.Parse(lin.Split(" ")[2]))
+                                                if (int.Parse(item.Split(':')[1]) > int.Parse(lin.Split(" ")[2]))
                                                 {
                                                     IfTrue = true;
                                                 }
                                                 else { IfTrue = false; }
-                                            }
-                                            catch(Exception e)
+                                            } // Int
+                                            else if (op == "<")
                                             {
-                                                if (item.Split(':')[1] == lin.Split(" ")[2])
+                                                if (int.Parse(item.Split(':')[1]) < int.Parse(lin.Split(" ")[2]))
                                                 {
                                                     IfTrue = true;
                                                 }
                                                 else { IfTrue = false; }
-                                            }
-                                        } // String или Int
-                                    }
-                                    else
-                                    {
-                                        FpsShower.Msg("Error in line " + linee, "Wrong IF operator!", false);
-                                        FpsShower.playSound = true;
-                                        Kernel.isExecute = false;
+                                            } // Int
+                                            else if (op == "==")
+                                            {
+                                                try
+                                                {
+                                                    if (int.Parse(item.Split(':')[1]) == int.Parse(lin.Split(" ")[2]))
+                                                    {
+                                                        IfTrue = true;
+                                                    }
+                                                    else { IfTrue = false; }
+                                                }
+                                                catch (Exception e)
+                                                {
+                                                    if (item.Split(':')[1] == lin.Split(" ")[2])
+                                                    {
+                                                        IfTrue = true;
+                                                    }
+                                                    else { IfTrue = false; }
+                                                }
+                                            } // String или Int
+                                        }
+                                        else
+                                        {
+                                            FpsShower.Msg("Error in line " + linee, "Wrong IF operator!", false);
+                                            FpsShower.playSound = true;
+                                            Kernel.isExecute = false;
+                                        }
                                     }
                                 }
                             }
@@ -350,7 +370,6 @@ namespace Hattory
                             Kernel.isExecute = false;
                         } // ЕСЛИ IF В IF'Е
                         #endregion
-                        // ДОДЕЛАТЬ: УСЛОВИЯ IF И BREAK КОНЕЦ УСЛОВИЯ
                         #region Maths
                         else if (lin.StartsWith("plus ", true, null))
                         {
