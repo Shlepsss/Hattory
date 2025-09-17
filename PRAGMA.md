@@ -20,21 +20,23 @@ text &&X||&&Y||&&Text||&&Color
 var – create an any type (integer, string) variable.
 var Name
 ```
-var X
+var X||50
+var X||"Hi!"
 ```
 
 set – set a value to provided variable (text or integer).
 set Variable Name || Value
 ```
 set X||25
-set X||Hello
+set X||"Hi!"
+set X||&&y
 ```
 
 if – starts an if-(else)-endcond construction (condition).
 if   Variable Name   Operator(>;<;==)   Value
 ```
 if X > 50
-if Text == Hello
+if Text == "Hello"
 if Y < 50
 ```
 
@@ -64,10 +66,8 @@ stop
 
 Example of variables and conditions
 ```
-var X
-var Y
-set X||50
-set Y||Hi
+var X||50
+var Y||"Hi"
 if X > 0
 (Some Code)
 else
