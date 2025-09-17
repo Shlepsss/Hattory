@@ -8,7 +8,7 @@ namespace Hattory
     public class Calc
     {
         private static Canvas canvas = kern.canvas;
-        public static bool iscalcready = kern.iscalcready;
+        public static bool iscalcready = false;
         public static string first = kern.first;
         public static string second = kern.second;
         public static float firstI = kern.firstI;
@@ -21,48 +21,54 @@ namespace Hattory
         {
             try
             {
-                canvas.DrawFilledRectangle(Color.DarkGray, 25, 60, 225, 325);
-                Otrisovka.Write("Calculator", 100, 65, Color.Black);
+                canvas.DrawFilledRectangle(Color.FromArgb(128, 0, 128), 25, 60, 225, 325);
+                canvas.DrawFilledRectangle(Color.FromArgb(45, 0, 45), 27, 62, 221, 321);
+                canvas.DrawFilledRectangle(Color.FromArgb(75, 0, 130), 27, 62, 221, 25);
+                Otrisovka.Write("Calculator", 35, 67, Color.Lavender);
+
+                // Кнопка закрытия
+                canvas.DrawFilledRectangle(Color.FromArgb(220, 20, 60), 25 + 225 - 22, 60 + 4, 18, 18);
+                Otrisovka.Write("X", 25 + 225 - 17, 60 + 7, Color.White);
                 //cifri buttons - 1
-                canvas.DrawFilledRectangle(Color.Gray, 30, 170, 40, 40);
-                canvas.DrawFilledRectangle(Color.Gray, 80, 170, 40, 40);
-                canvas.DrawFilledRectangle(Color.Gray, 130, 170, 40, 40);
-                canvas.DrawFilledRectangle(Color.Gray, 180, 170, 40, 40);
-                Otrisovka.Write("1", 50, 185, Color.Black);
-                Otrisovka.Write("2", 100, 185, Color.Black);
-                Otrisovka.Write("3", 150, 185, Color.Black);
-                Otrisovka.Write("BS", 194, 185, Color.Black);
+                canvas.DrawFilledRectangle(Color.Gray, 35, 190, 40, 40);
+                canvas.DrawFilledRectangle(Color.Gray, 85, 190, 40, 40);
+                canvas.DrawFilledRectangle(Color.Gray, 135, 190, 40, 40);
+                canvas.DrawFilledRectangle(Color.Gray, 185, 190, 40, 40);
+                Otrisovka.Write("1", 55, 205, Color.Black);
+                Otrisovka.Write("2", 105, 205, Color.Black);
+                Otrisovka.Write("3", 155, 205, Color.Black);
+                Otrisovka.Write("BS", 199, 205, Color.Black);
                 //2
-                canvas.DrawFilledRectangle(Color.Gray, 30, 220, 40, 40);
-                canvas.DrawFilledRectangle(Color.Gray, 80, 220, 40, 40);
-                canvas.DrawFilledRectangle(Color.Gray, 130, 220, 40, 40);
-                canvas.DrawFilledRectangle(Color.Gray, 180, 220, 40, 40);
-                Otrisovka.Write("4", 50, 235, Color.Black);
-                Otrisovka.Write("5", 100, 235, Color.Black);
-                Otrisovka.Write("6", 150, 235, Color.Black);
-                Otrisovka.Write("sqrt", 184, 235, Color.Black);
+                canvas.DrawFilledRectangle(Color.Gray, 35, 240, 40, 40);
+                canvas.DrawFilledRectangle(Color.Gray, 85, 240, 40, 40);
+                canvas.DrawFilledRectangle(Color.Gray, 135, 240, 40, 40);
+                canvas.DrawFilledRectangle(Color.Gray, 185, 240, 40, 40);
+                Otrisovka.Write("4", 55, 255, Color.Black);
+                Otrisovka.Write("5", 105, 255, Color.Black);
+                Otrisovka.Write("6", 155, 255, Color.Black);
+                Otrisovka.Write("sqrt", 189, 255, Color.Black);
                 //3
-                canvas.DrawFilledRectangle(Color.Gray, 30, 270, 40, 40);
-                canvas.DrawFilledRectangle(Color.Gray, 80, 270, 40, 40);
-                canvas.DrawFilledRectangle(Color.Gray, 130, 270, 40, 40);
-                canvas.DrawFilledRectangle(Color.Gray, 180, 270, 40, 40);
-                Otrisovka.Write("7", 50, 285, Color.Black);
-                Otrisovka.Write("8", 100, 285, Color.Black);
-                Otrisovka.Write("9", 150, 285, Color.Black);
-                Otrisovka.Write("sqr", 188, 285, Color.Black);
+                canvas.DrawFilledRectangle(Color.Gray, 35, 290, 40, 40);
+                canvas.DrawFilledRectangle(Color.Gray, 85, 290, 40, 40);
+                canvas.DrawFilledRectangle(Color.Gray, 135, 290, 40, 40);
+                canvas.DrawFilledRectangle(Color.Gray, 185, 290, 40, 40);
+                Otrisovka.Write("7", 55, 305, Color.Black);
+                Otrisovka.Write("8", 105, 305, Color.Black);
+                Otrisovka.Write("9", 155, 305, Color.Black);
+                Otrisovka.Write("sqr", 193, 305, Color.Black);
                 //0
-                canvas.DrawFilledRectangle(Color.Gray, 30, 320, 40, 40);
-                Otrisovka.Write("-", 50, 335, Color.Black);
-                canvas.DrawFilledRectangle(Color.Gray, 80, 320, 40, 40);
-                Otrisovka.Write("0", 100, 335, Color.Black);
-                canvas.DrawFilledRectangle(Color.Gray, 130, 320, 40, 40);
-                Otrisovka.Write(".", 150, 335, Color.Black);
-                canvas.DrawFilledRectangle(Color.Gray, 180, 320, 40, 40);
-                Otrisovka.Write("x^y", 188, 335, Color.Black);
+                canvas.DrawFilledRectangle(Color.Gray, 35, 340, 40, 40);
+                Otrisovka.Write("-", 55, 355, Color.Black);
+                canvas.DrawFilledRectangle(Color.Gray, 85, 340, 40, 40);
+                Otrisovka.Write("0", 105, 355, Color.Black);
+                canvas.DrawFilledRectangle(Color.Gray, 135, 340, 40, 40);
+                Otrisovka.Write(".", 155, 355, Color.Black);
+                canvas.DrawFilledRectangle(Color.Gray, 185, 340, 40, 40);
+                Otrisovka.Write("x^y", 193, 355, Color.Black);
                 //end
                 //button press
                 //1
-                if (kern.Click(30, 170, 40, 40))
+                if (kern.Click(35, 190, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -80,7 +86,7 @@ namespace Hattory
                     }
                 }
                 //2
-                if (kern.Click(80, 170, 40, 40))
+                if (kern.Click(85, 190, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -98,7 +104,7 @@ namespace Hattory
                     }
                 }
                 //3
-                if (kern.Click(130, 170, 40, 40))
+                if (kern.Click(135, 190, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -116,7 +122,7 @@ namespace Hattory
                     }
                 }
                 //4
-                if (kern.Click(30, 220, 40, 40))
+                if (kern.Click(35, 240, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -134,7 +140,7 @@ namespace Hattory
                     }
                 }
                 //5
-                if (kern.Click(80, 220, 40, 40))
+                if (kern.Click(85, 240, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -152,7 +158,7 @@ namespace Hattory
                     }
                 }
                 //6
-                if (kern.Click(130, 220, 40, 40))
+                if (kern.Click(135, 240, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -170,7 +176,7 @@ namespace Hattory
                     }
                 }
                 //7
-                if (kern.Click(30, 270, 40, 40))
+                if (kern.Click(35, 290, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -188,7 +194,7 @@ namespace Hattory
                     }
                 }
                 //8
-                if (kern.Click(80, 270, 40, 40))
+                if (kern.Click(85, 290, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -206,7 +212,7 @@ namespace Hattory
                     }
                 }
                 //9
-                if (kern.Click(130, 270, 40, 40))
+                if (kern.Click(135, 290, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -224,7 +230,7 @@ namespace Hattory
                     }
                 }
                 //0
-                if (kern.Click(80, 320, 40, 40))
+                if (kern.Click(85, 340, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -241,7 +247,7 @@ namespace Hattory
                         }
                     }
                 }
-                if (kern.Click(30, 320, 40, 40))
+                if (kern.Click(35, 340, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -258,7 +264,7 @@ namespace Hattory
                         }
                     }
                 }
-                if (kern.Click(180, 170, 40, 40))
+                if (kern.Click(185, 190, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -277,7 +283,7 @@ namespace Hattory
                     }
                 }
                 //.
-                if (kern.Click(130, 320, 40, 40))
+                if (kern.Click(135, 340, 40, 40))
                 {
                     if (iscalcready == false)
                     {
@@ -295,74 +301,84 @@ namespace Hattory
                     }
                 }
                 //line 1
-                if (kern.Click(30, 80, 190, 15))
+                if (kern.Click(35, 100, 190, 15))
                 {
                     iscalcready = false;
                 }
                 //line 2
-                if (kern.Click(30, 115, 190, 15))
+                if (kern.Click(35, 135, 190, 15))
                 {
                     iscalcready = true;
                 }
                 //end
                 if (iscalcready == false)
                 {
-                    canvas.DrawFilledRectangle(Color.Green, 30, 80, 190, 15);
-                    canvas.DrawFilledRectangle(Color.White, 30, 115, 190, 15);
+                    canvas.DrawFilledRectangle(Color.Green, 35, 100, 190, 15);
+                    canvas.DrawFilledRectangle(Color.White, 35, 135, 190, 15);
                 }
                 if (iscalcready == true)
                 {
-                    canvas.DrawFilledRectangle(Color.White, 30, 80, 190, 15);
-                    canvas.DrawFilledRectangle(Color.Green, 30, 115, 190, 15);
+                    canvas.DrawFilledRectangle(Color.White, 35, 100, 190, 15);
+                    canvas.DrawFilledRectangle(Color.Green, 35, 135, 190, 15);
                 }
-                canvas.DrawFilledRectangle(Color.White, 30, 145, 190, 15);
-                Otrisovka.Write(first, 35, 80, Color.Black);
-                Otrisovka.Write(second, 35, 115, Color.Black);
+                canvas.DrawFilledRectangle(Color.White, 35, 165, 190, 15);
+                Otrisovka.Write(first, 40, 100, Color.Black);
+                Otrisovka.Write(second, 40, 135, Color.Black);
                 try
                 {
-                    Otrisovka.Write(c.ToString(), 30, 145, Color.Black);
+                    Otrisovka.Write(c.ToString(), 40, 165, Color.Black);
                 }
                 catch (Exception) { }
-                Otrisovka.Write("Plus", 30, 100, Color.Black); // 32
-                Otrisovka.Write("Minus", 70, 100, Color.Black); // 40 + 5
-                Otrisovka.Write("Devide", 120, 100, Color.Black); // 48 + 5
-                Otrisovka.Write("Multiply", 175, 100, Color.Black); //64 + 5
+                Otrisovka.Write("Plus", 30, 120, Color.Thistle); // 32
+                Otrisovka.Write("Minus", 70, 120, Color.Thistle); // 40 + 5
+                Otrisovka.Write("Devide", 120, 120, Color.Thistle); // 48 + 5
+                Otrisovka.Write("Multiply", 175, 120, Color.Thistle); //64 + 5
                 try
                 {
                     firstI = Convert.ToSingle(first);
                     secondI = Convert.ToSingle(second);
                 }
                 catch (Exception) { }
-                if (kern.Click(30, 100, 32, 16))
+                if (kern.Click(30, 120, 32, 16))
                 {
                     c = firstI + secondI;
                 }
-                if (kern.Click(70, 100, 40, 16))
+                if (kern.Click(70, 120, 40, 16))
                 {
                     c = firstI - secondI;
                 }
-                if (kern.Click(120, 100, 48, 16))
+                if (kern.Click(120, 120, 48, 16))
                 {
                     c = firstI / secondI;
                 }
-                if (kern.Click(175, 100, 64, 16))
+                if (kern.Click(175, 120, 64, 16))
                 {
                     c = firstI * secondI;
                 }
                 //SQRT()
-                if (kern.Click(180, 220, 40, 40))
+                if (kern.Click(185, 240, 40, 40))
                 {
                     c = !iscalcready ? (float)Math.Sqrt(firstI) : (float)Math.Sqrt(secondI);
                 }
                 //SQR()
-                if (kern.Click(180, 270, 40, 40))
+                if (kern.Click(185, 290, 40, 40))
                 {
                     c = !iscalcready ? (float)Math.Pow(firstI,2) : (float)Math.Pow(secondI,2);
                 }
                 //pow()
-                if (kern.Click(180, 320, 40, 40))
+                if (kern.Click(185, 340, 40, 40))
                 {
                     c = (float)Math.Pow(firstI, secondI);
+                }
+                if (kern.Click(25 + 225 - 22, 60 + 4, 18, 18))
+                {
+                    c = kern.c;
+                    first = kern.first;
+                    second = kern.second;
+                    firstI = kern.firstI;
+                    secondI = kern.secondI;
+                    iscalcready = false;
+                    Kernel.op = "";
                 }
                 Cosmos.Core.Memory.Heap.Collect();
             }

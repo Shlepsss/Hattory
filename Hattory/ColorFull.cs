@@ -19,49 +19,56 @@ namespace Hattory
         public static List<string> coords = new List<string>();
         public static void Start()
         {
-            lol.canvas.DrawFilledRectangle(Color.Red, 30, 610, 50, 25);
-            Otrisovka.Write("SAVE", 35, 619, Color.Black);
-            lol.canvas.DrawFilledRectangle(Color.White, 90, 610, 50, 25);
-            Otrisovka.Write("CLEAR", 95, 619, Color.Black);
-            lol.canvas.DrawFilledRectangle(Color.DarkGray, 30, 640, 20, 20);
-            lol.canvas.DrawFilledRectangle(Color.Blue, 60, 640, 20, 20);
-            lol.canvas.DrawFilledRectangle(Color.Green, 90, 640, 20, 20);
-            lol.canvas.DrawFilledRectangle(Color.SkyBlue, 120, 640, 20, 20);
-            lol.canvas.DrawFilledRectangle(Color.Red, 30, 670, 20, 20);
-            lol.canvas.DrawFilledRectangle(Color.DeepPink, 60, 670, 20, 20);
-            lol.canvas.DrawFilledRectangle(Color.Yellow, 90, 670, 20, 20);
-            lol.canvas.DrawFilledRectangle(Color.White, 120, 670, 20, 20);
-            lol.canvas.DrawFilledRectangle(Color.White, 30, 300, 300, 300);
+            lol.canvas.DrawFilledRectangle(Color.FromArgb(128, 0, 128), 30, 60, 300, 320);
+            lol.canvas.DrawFilledRectangle(Color.FromArgb(45, 0, 45), 32, 62, 296, 316);
+            lol.canvas.DrawFilledRectangle(Color.FromArgb(75, 0, 130), 32, 62, 296, 25);
+            Otrisovka.Write("Colorfull Draw", 40, 67, Color.Lavender);
 
-            if (Collor == 0) { Otrisovka.Write("Black", 75, 700, Color.DarkGray); }
-            if (Collor == 1) { Otrisovka.Write("Blue", 75, 700, Color.DarkBlue); }
-            if (Collor == 2) { Otrisovka.Write("Green", 75, 700, Color.DarkGreen); }
-            if (Collor == 3) { Otrisovka.Write("SkyBlue", 75, 700, Color.SkyBlue); }
-            if (Collor == 4) { Otrisovka.Write("Red", 75, 700, Color.DarkRed); }
-            if (Collor == 5) { Otrisovka.Write("Pink", 75, 700, Color.DeepPink); }
-            if (Collor == 6) { Otrisovka.Write("Yellow", 75, 700, Color.YellowGreen); }
-            if (Collor == 7) { Otrisovka.Write("White..? useless :D", 75, 700, Color.White); }
+            // Кнопка закрытия
+            lol.canvas.DrawFilledRectangle(Color.FromArgb(220, 20, 60), 30 + 300 - 22, 60 + 4, 18, 18);
+            Otrisovka.Write("X", 30 + 300 - 17, 60 + 7, Color.White);
+
+            lol.canvas.DrawFilledRectangle(Color.SkyBlue, 40, 310, 60, 25);
+            lol.canvas.DrawFilledRectangle(Color.White, 110, 310, 60, 25);
+            Otrisovka.Write("SAVE", 45, 317, Color.Black);
+            Otrisovka.Write("CLEAR", 115, 317, Color.Black);
+            int colorY = 345;
+            lol.canvas.DrawFilledRectangle(Color.White, 40, 95, 280, 200);
+            lol.canvas.DrawFilledRectangle(Color.DarkGray, 40, colorY, 20, 20);
+            lol.canvas.DrawFilledRectangle(Color.Blue, 70, colorY, 20, 20);
+            lol.canvas.DrawFilledRectangle(Color.Green, 100, colorY, 20, 20);
+            lol.canvas.DrawFilledRectangle(Color.SkyBlue, 130, colorY, 20, 20);
+            lol.canvas.DrawFilledRectangle(Color.Red, 160, colorY, 20, 20);
+            lol.canvas.DrawFilledRectangle(Color.DeepPink, 190, colorY, 20, 20);
+            lol.canvas.DrawFilledRectangle(Color.Yellow, 220, colorY, 20, 20);
+
+            if (Collor == 0) { Otrisovka.Write("Black", 250, colorY + 2, Color.DarkGray); }
+            if (Collor == 1) { Otrisovka.Write("Blue", 250, colorY + 2, Color.DarkBlue); }
+            if (Collor == 2) { Otrisovka.Write("Green", 250, colorY + 2, Color.DarkGreen); }
+            if (Collor == 3) { Otrisovka.Write("SkyBlue", 250, colorY + 2, Color.SkyBlue); }
+            if (Collor == 4) { Otrisovka.Write("Red", 250, colorY + 2, Color.DarkRed); }
+            if (Collor == 5) { Otrisovka.Write("Pink", 250, colorY + 2, Color.DeepPink); }
+            if (Collor == 6) { Otrisovka.Write("Yellow", 250, colorY + 2, Color.YellowGreen); }
 
             // COLORS
             #region colors
-            if (lol.Click(30, 640, 20, 20)) { Collor = 0; }
-            if (lol.Click(60, 640, 20, 20)) { Collor = 1; }
-            if (lol.Click(90, 640, 20, 20)) { Collor = 2; }
-            if (lol.Click(120, 640, 20, 20)) { Collor = 3; }
-            if (lol.Click(30, 670, 20, 20)) { Collor = 4; }
-            if (lol.Click(60, 670, 20, 20)) { Collor = 5; }
-            if (lol.Click(90, 670, 20, 20)) { Collor = 6; }
-            if (lol.Click(120, 670, 20, 20)) { Collor = 7; }
+            if (lol.Click(40, colorY, 20, 20)) { Collor = 0; }
+            if (lol.Click(70, colorY, 20, 20)) { Collor = 1; }
+            if (lol.Click(100, colorY, 20, 20)) { Collor = 2; }
+            if (lol.Click(130, colorY, 20, 20)) { Collor = 3; }
+            if (lol.Click(160, colorY, 20, 20)) { Collor = 4; }
+            if (lol.Click(190, colorY, 20, 20)) { Collor = 5; }
+            if (lol.Click(220, colorY, 20, 20)) { Collor = 6; }
             #endregion
 
-            if (lol.Click(30, 300, 300, 300))
+            if (lol.Click(40, 95, 280, 200))
             {
                 if (!coords.Contains((int)sus.MouseManager.X + ";" + (int)sus.MouseManager.Y))
                 {
                     coords.Add((int)sus.MouseManager.X + ";" + (int)sus.MouseManager.Y + ";" + Collor);
                 }
             }
-            if (lol.ClickRight(30, 300, 300, 300))
+            if (lol.ClickRight(40, 95, 280, 200))
             {
                 if (coords.Count != 0)
                 {
@@ -90,10 +97,9 @@ namespace Hattory
                     if (coordinates[2] == "4") { lol.canvas.DrawFilledCircle(Color.Red, Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1]), 2); }
                     if (coordinates[2] == "5") { lol.canvas.DrawFilledCircle(Color.DeepPink, Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1]), 2); }
                     if (coordinates[2] == "6") { lol.canvas.DrawFilledCircle(Color.Yellow, Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1]), 2); }
-                    if (coordinates[2] == "7") { lol.canvas.DrawFilledCircle(Color.White, Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1]), 2); }
                 }
             }
-            if (lol.Click(30, 610, 50, 25))
+            if (lol.Click(40, 310, 60, 25))
             {
                 try 
                 {
@@ -145,9 +151,14 @@ namespace Hattory
                     if (!coords.Contains(s)) { coords.Add(s); }
                 }
             }*/
-            if (lol.Click(90, 610, 50, 25))
+            if (lol.Click(110, 310, 60, 25))
             {
                 coords.Clear();
+            }
+            // Обработка закрытия
+            if (lol.Click(30 + 300 - 22, 60 + 4, 18, 18))
+            {
+                Kernel.op = "";
             }
         }
         public static void Loadd(string info)

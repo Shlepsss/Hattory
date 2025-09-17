@@ -1,565 +1,517 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using Cosmos;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Threading.Tasks;
 using sus = Cosmos.System;
-using ConsoleKeyy = Cosmos.System.ConsoleKeyEx;
-using lol = Hattory.Kernel;
 using Cosmos.System.Graphics;
-using Cosmos.System.Graphics.Fonts;
-using Cosmos.System;
-using static System.Net.Mime.MediaTypeNames;
-using System.Xml.Linq;
+using System.Threading;
 
 namespace Hattory
 {
+    public class Variable
+    {
+        public string Name = "";
+        public string Value = "";
+        public string Type = "string"; // "string", "number", "boolean"
+    }
+
     public class PragmaInterpritator
     {
-        public static List<string> variables = new List<string>(); // переменные
+        public static List<Variable> variables = new List<Variable>();
         public static List<string> code = new List<string>();
+
         public static bool inIf = false;
         public static bool inElse = false;
-        public static bool IfTrue = false;
-        public static int linee = 1;
+        public static bool ifTrue = false;
+        public static int currentLine = 0;
+
         public static void Execute()
         {
             try
             {
-                foreach (string line in code)
-                {
-                    string lin = line;
-                    while (lin.StartsWith(' ') || lin.EndsWith(' ')) { lin = lin.Trim(); }
-
-                    // УСЛОВНЫЕ ОПЕРАТОРЫ
-                    if(inElse || inIf)
-                    {
-                        if (lin.StartsWith("endcond", true, null))
-                        {
-                            inIf = false;
-                            inElse = false;
-                            IfTrue = false;
-                        }
-                        else if (lin.StartsWith("else", true, null))
-                        {
-                            if (inIf == true && IfTrue == false)
-                            {
-                                inElse = true;
-                                inIf = false;
-                            }
-                            else
-                            {
-                                inElse = false;
-                                inIf = true;
-                                IfTrue = false;
-                            }
-                        } // ELSE
-                    }
-                    
-                    else if (lin.StartsWith("else", true, null) && (inIf == false || inElse == true))
-                    {
-                        FpsShower.Msg("Error in line " + linee, "Wrong If-Else construction!", false);
-                        FpsShower.playSound = true;
-                        Kernel.isExecute = false;
-                    } // ELSE без IF
-
-                    // MAIN CODE
-                    if ((!inIf) || (inIf && IfTrue) || (inElse)) 
-                    {
-                        #region graphics
-                        if(lin == null || lin == "") { } // Пустая строка
-                        else if (lin.StartsWith("text ", true, null))
-                        {
-                            lin = lin.Substring(5);
-                            string[] parts = lin.Split("||");
-                            string textx = lin.Split("||")[0].Trim();
-                            string texty = lin.Split("||")[1].Trim();
-                            string text = lin.Split("||")[2].Trim();
-                            string color = lin.Split("||")[3].Trim();
-                            foreach (var item in parts)
-                            {
-                                if (item.StartsWith("&&"))
-                                {
-                                    string ikalka = item.Substring(2).Trim();
-                                    foreach (var var in variables)
-                                    {
-                                        string[] varParts = var.Split(':');
-                                        if (varParts[0] == ikalka)
-                                        {
-                                            string value = varParts[1];
-                                            if (parts[0].Substring(2) == ikalka)
-                                            {
-                                                textx = value;
-                                            }
-                                            if (parts[1].Substring(2) == ikalka)
-                                            {
-                                                texty = value;
-                                            }
-                                            if (parts[2].Substring(2) == ikalka)
-                                            {
-                                                text = value;
-                                            }
-                                            if (parts[3].Substring(2) == ikalka)
-                                            {
-                                                color = value;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            Otrisovka.Write(text, int.Parse(textx), int.Parse(texty), Color.FromName(color));
-                        } // ТЕКСТ
-                        else if (lin.StartsWith("rect ", true, null))
-                        {
-                            lin = lin.Substring(5);
-                            string[] parts = lin.Split("||");
-                            // Парсинг начальных значений
-                            string x = parts[0].Trim();
-                            string y = parts[1].Trim();
-                            string wi = parts[2].Trim();
-                            string he = parts[3].Trim();
-                            string color = parts[4].Trim();
-                            // Обработка переменных
-                            foreach (var item in parts)
-                            {
-                                if (item.StartsWith("&&"))
-                                {
-                                    string ikalka = item.Substring(2).Trim();
-                                    foreach (var var in variables)
-                                    {
-                                        string[] varParts = var.Split(':');
-                                        if (varParts[0] == ikalka)
-                                        {
-                                            string value = varParts[1];
-                                            if (parts[0].Substring(2) == ikalka)
-                                            {
-                                                x = value;
-                                            }
-                                            if (parts[1].Substring(2) == ikalka)
-                                            {
-                                                y = value;
-                                            }
-                                            if (parts[2].Substring(2) == ikalka)
-                                            {
-                                                wi = value;
-                                            }
-                                            if (parts[3].Substring(2) == ikalka)
-                                            {
-                                                he = value;
-                                            }
-                                            if (parts[4].Substring(2) == ikalka)
-                                            {
-                                                color = value;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            Kernel.canvas.DrawFilledRectangle(Color.FromName(color), int.Parse(x), int.Parse(y), int.Parse(wi), int.Parse(he));
-                        } // ПРЯМОУГОЛЬНИК
-                        else if (lin.StartsWith("circle ", true, null))
-                        {
-                            lin = lin.Remove(0, 7);
-                            string[] parts = lin.Split("||");
-                            string x = parts[0].Trim();
-                            string y = parts[1].Trim();
-                            string rad = parts[2].Trim();
-                            string color = parts[3].Trim();
-                            foreach (var item in parts)
-                            {
-                                if (item.StartsWith("&&"))
-                                {
-                                    string ikalka = item.Substring(2).Trim();
-                                    foreach (var var in variables)
-                                    {
-                                        string[] varParts = var.Split(':');
-                                        if (varParts[0] == ikalka)
-                                        {
-                                            string value = varParts[1];
-                                            if (parts[0].Substring(2) == ikalka)
-                                            {
-                                                x = value;
-                                            }
-                                            if (parts[1].Substring(2) == ikalka)
-                                            {
-                                                y = value;
-                                            }
-                                            if (parts[2].Substring(2) == ikalka)
-                                            {
-                                                rad = value;
-                                            }
-                                            if (parts[3].Substring(2) == ikalka)
-                                            {
-                                                color = value;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            Kernel.canvas.DrawFilledCircle(Color.FromName(color), int.Parse(x), int.Parse(y), int.Parse(rad));
-                        } // КРУГ
-                        else if (lin.StartsWith("pixel ", true, null))
-                        {
-                            lin = lin.Remove(0, 6);
-                            string[] parts = lin.Split("||");
-                            string x = parts[0].Trim();
-                            string y = parts[1].Trim();
-                            string color = parts[2].Trim();
-                            foreach (var item in parts)
-                            {
-                                if (item.StartsWith("&&"))
-                                {
-                                    string ikalka = item.Substring(2).Trim();
-                                    foreach (var var in variables)
-                                    {
-                                        string[] varParts = var.Split(':');
-                                        if (varParts[0] == ikalka)
-                                        {
-                                            string value = varParts[1];
-                                            if (parts[0].Substring(2) == ikalka)
-                                            {
-                                                x = value;
-                                            }
-                                            if (parts[1].Substring(2) == ikalka)
-                                            {
-                                                y = value;
-                                            }
-                                            if (parts[2].Substring(2) == ikalka)
-                                            {
-                                                color = value;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            Kernel.canvas.DrawPoint(Color.FromName(color), int.Parse(x), int.Parse(y));
-                        } // ПИКСЕЛЬ
-                        #endregion
-                        #region system
-                        else if (lin == "shutdown")
-                        {
-                            sus.Power.Shutdown();
-                        } // ВЫКЛЮЧЕНИЕ ПК
-                        else if (lin == "reboot")
-                        {
-                            sus.Power.Reboot();
-                        } // ПЕРЕЗАПУСК ПК
-                        else if (lin == "stop")
-                        {
-                            Kernel.isExecute = false;
-                        } // ОСТАНОВИТЬ КОД
-                        else if (lin.StartsWith("msg ", true, null))
-                        {
-                            lin = lin.Remove(0, 4);
-                            string str1 = lin.Split("||")[0].Trim();
-                            string str2 = lin.Split("||")[1].Trim();
-                            string type = lin.Split("||")[2].Trim();
-                            if(type == "i") { FpsShower.Msg(str1, str2); FpsShower.playSound = true; } // info
-                            else if(type == "w") { FpsShower.Msg(str1, str2, false); FpsShower.playSound = true; } // warning
-                        } // ВЫВЕСТИ СООБЩЕНИЕ НА ЭКРАН
-                        else if (lin.StartsWith("beep ", true, null))
-                        {
-                            lin = lin.Remove(0, 5);
-                            int hz = int.Parse(lin.Split("||")[0].Trim());
-                            int sec = int.Parse(lin.Split("||")[1].Trim());
-                            Cosmos.System.PCSpeaker.Beep((uint)hz, (uint)sec);
-                        } // СПИКЕР ПК
-                        #endregion
-                        #region code
-                        else if (lin.StartsWith("var ", true, null))
-                        {
-                            lin = lin.Remove(0, 4);
-                            variables.Add(lin.Trim());
-                        } // СОЗДАНИЕ ПЕРЕМЕННОЙ
-                        else if (lin.StartsWith("set ", true, null))
-                        {
-                            lin = lin.Remove(0, 4);
-                            string name = lin.Split("||")[0].Trim();
-                            string value = lin.Split("||")[1].Trim();
-                            foreach (var item in variables)
-                            {
-                                if (item.Split(':')[0] == name)
-                                {
-                                    variables.Remove(item);
-                                    variables.Add(item + ':' + value);
-                                    break;
-                                }
-                            }
-                        } // ЗАДАВАНИЕ ЗНАЧЕНИЕ ПЕРЕМЕННОЙ
-                        else if (lin.StartsWith("if ", true, null) && inIf == false)
-                        {
-                            lin = lin.Remove(0, 3);
-                            string name = lin.Split(" ")[0].Trim();
-                            string op = lin.Split(" ")[1].Trim();
-                            string comp = lin.Split(" ")[2].Trim();
-                            if(name == "mouse" && op == "cia")
-                            {
-                                inIf = true;
-                                if (Kernel.Click(int.Parse(comp.Split("||")[0].Trim()), int.Parse(comp.Split("||")[1].Trim()), int.Parse(comp.Split("||")[2].Trim()), int.Parse(comp.Split("||")[3].Trim())))
-                                {
-                                    IfTrue = true;
-                                }
-                                else { IfTrue = false; }
-                            }
-                            else
-                            {
-                                foreach (var item in variables)
-                                {
-                                    if (item.Split(':')[0] == name)
-                                    {
-                                        if (op == ">" || op == "<" || op == "==")
-                                        {
-                                            inIf = true;
-                                            if (op == ">")
-                                            {
-                                                if (int.Parse(item.Split(':')[1]) > int.Parse(lin.Split(" ")[2]))
-                                                {
-                                                    IfTrue = true;
-                                                }
-                                                else { IfTrue = false; }
-                                            } // Int
-                                            else if (op == "<")
-                                            {
-                                                if (int.Parse(item.Split(':')[1]) < int.Parse(lin.Split(" ")[2]))
-                                                {
-                                                    IfTrue = true;
-                                                }
-                                                else { IfTrue = false; }
-                                            } // Int
-                                            else if (op == "==")
-                                            {
-                                                try
-                                                {
-                                                    if (int.Parse(item.Split(':')[1]) == int.Parse(lin.Split(" ")[2]))
-                                                    {
-                                                        IfTrue = true;
-                                                    }
-                                                    else { IfTrue = false; }
-                                                }
-                                                catch (Exception e)
-                                                {
-                                                    if (item.Split(':')[1] == lin.Split(" ")[2])
-                                                    {
-                                                        IfTrue = true;
-                                                    }
-                                                    else { IfTrue = false; }
-                                                }
-                                            } // String или Int
-                                        }
-                                        else
-                                        {
-                                            FpsShower.Msg("Error in line " + linee, "Wrong IF operator!", false);
-                                            FpsShower.playSound = true;
-                                            Kernel.isExecute = false;
-                                        }
-                                    }
-                                }
-                            }
-                        } // УСЛОВИЕ IF
-                        else if (lin.StartsWith("if ", true, null) && inIf == true)
-                        {
-                            FpsShower.Msg("Error in line " + linee, "If in If not implemented!", false);
-                            FpsShower.playSound = true;
-                            Kernel.isExecute = false;
-                        } // ЕСЛИ IF В IF'Е
-                        #endregion
-                        #region Maths
-                        else if (lin.StartsWith("plus ", true, null))
-                        {
-                            int oldval = 0;
-                            lin = lin.Substring(5);
-                            string var = lin.Split("||")[0].Trim();
-                            string value = lin.Split("||")[1].Trim();
-                            if (lin.Split("||")[1].StartsWith("&&"))
-                            {
-                                string ikalka = lin.Split("||")[1].Substring(2).Trim();
-                                foreach (var vari in variables)
-                                {
-                                    string[] varParts = vari.Split(':');
-                                    if (varParts[0] == ikalka)
-                                    {
-                                        value = varParts[1];
-                                        break;
-                                    }
-                                }
-                            }
-                            foreach (var item in variables)
-                            {
-                                if (item.Split(':')[0] == var)
-                                {
-                                    variables.Remove(item);
-                                    oldval = int.Parse(item.Split(':')[1]);
-                                    variables.Add(var + ':' + (oldval + int.Parse(value)).ToString());
-                                    break;
-                                }
-                            }
-                        } // ПЛЮС
-                        else if (lin.StartsWith("minus ", true, null))
-                        {
-                            int oldval = 0;
-                            lin = lin.Substring(6);
-                            string var = lin.Split("||")[0].Trim();
-                            string value = lin.Split("||")[1].Trim();
-                            if (lin.Split("||")[1].StartsWith("&&"))
-                            {
-                                string ikalka = lin.Split("||")[1].Substring(2).Trim();
-                                foreach (var vari in variables)
-                                {
-                                    string[] varParts = vari.Split(':');
-                                    if (varParts[0] == ikalka)
-                                    {
-                                        value = varParts[1];
-                                        break;
-                                    }
-                                }
-                            }
-                            foreach (var item in variables)
-                            {
-                                if (item.Split(':')[0] == var)
-                                {
-                                    variables.Remove(item);
-                                    oldval = int.Parse(item.Split(':')[1]);
-                                    variables.Add(var + ':' + (oldval - int.Parse(value)).ToString());
-                                    break;
-                                }
-                            }
-                        } // МИНУС
-                        else if (lin.StartsWith("multiply ", true, null))
-                        {
-                            int oldval = 0;
-                            lin = lin.Substring(9);
-                            string var = lin.Split("||")[0].Trim();
-                            string value = lin.Split("||")[1].Trim();
-                            if (lin.Split("||")[1].StartsWith("&&"))
-                            {
-                                string ikalka = lin.Split("||")[1].Substring(2).Trim();
-                                foreach (var vari in variables)
-                                {
-                                    string[] varParts = vari.Split(':');
-                                    if (varParts[0] == ikalka)
-                                    {
-                                        value = varParts[1];
-                                        break;
-                                    }
-                                }
-                            }
-                            foreach (var item in variables)
-                            {
-                                if (item.Split(':')[0] == var)
-                                {
-                                    variables.Remove(item);
-                                    oldval = int.Parse(item.Split(':')[1]);
-                                    variables.Add(var + ':' + (oldval * int.Parse(value)).ToString());
-                                    break;
-                                }
-                            }
-                        } // УМНОЖЕНИЕ
-                        else if (lin.StartsWith("divide ", true, null))
-                        {
-                            int oldval = 0;
-                            lin = lin.Substring(7);
-                            string var = lin.Split("||")[0].Trim();
-                            string value = lin.Split("||")[1].Trim();
-                            if (lin.Split("||")[1].StartsWith("&&"))
-                            {
-                                string ikalka = lin.Split("||")[1].Substring(2).Trim();
-                                foreach (var vari in variables)
-                                {
-                                    string[] varParts = vari.Split(':');
-                                    if (varParts[0] == ikalka)
-                                    {
-                                        value = varParts[1];
-                                        break;
-                                    }
-                                }
-                            }
-                            foreach (var item in variables)
-                            {
-                                if (item.Split(':')[0] == var)
-                                {
-                                    variables.Remove(item);
-                                    oldval = int.Parse(item.Split(':')[1]);
-                                    variables.Add(var + ':' + (oldval / int.Parse(value)).ToString());
-                                    break;
-                                }
-                            }
-                        } // ДЕЛЕНИЕ
-                        else if (lin.StartsWith("power ", true, null))
-                        {
-                            int oldval = 0;
-                            lin = lin.Substring(6);
-                            string var = lin.Split("||")[0].Trim();
-                            string value = lin.Split("||")[1].Trim();
-                            if (lin.Split("||")[1].StartsWith("&&"))
-                            {
-                                string ikalka = lin.Split("||")[1].Substring(2).Trim();
-                                foreach (var vari in variables)
-                                {
-                                    string[] varParts = vari.Split(':');
-                                    if (varParts[0] == ikalka)
-                                    {
-                                        value = varParts[1];
-                                        break;
-                                    }
-                                }
-                            }
-                            foreach (var item in variables)
-                            {
-                                if (item.Split(':')[0] == var)
-                                {
-                                    variables.Remove(item);
-                                    oldval = int.Parse(item.Split(':')[1]);
-                                    variables.Add(var + ':' + Math.Pow(oldval, int.Parse(value)).ToString());
-                                    break;
-                                }
-                            }
-                        } // СТЕПЕНЬ
-                        else if (lin.StartsWith("sqrt ", true, null))
-                        {
-                            int oldval = 0;
-                            lin = lin.Substring(5);
-                            foreach (var item in variables)
-                            {
-                                if (item.Split(':')[0] == lin)
-                                {
-                                    variables.Remove(item);
-                                    oldval = int.Parse(item.Split(':')[1]);
-                                    variables.Add(lin + ':' + Math.Sqrt(oldval).ToString());
-                                    break;
-                                }
-                            }
-                        } // КОРЕНЬ
-                        else if (lin.StartsWith("endcond", true, null) || lin.StartsWith("else", true, null)) { }
-                        else if (lin.StartsWith("", true, null)) { }
-                        #endregion
-                        else
-                        {
-                            FpsShower.Msg("Error in line " + linee, "Invalid Command!", false);
-                            FpsShower.playSound = true;
-                            Kernel.isExecute = false;
-                        }
-                    }
-                    linee += 1;
-                }
+                //variables.Clear();
                 inIf = false;
                 inElse = false;
-                IfTrue = false;
-                linee = 1;
-                variables.Clear();
+                ifTrue = false;
+                currentLine = 0;
+
+                while (currentLine < code.Count)
+                {
+                    string line = code[currentLine].Trim();
+                    currentLine++;
+
+                    if (string.IsNullOrEmpty(line) || line.StartsWith("//"))
+                    {
+                        continue;
+                    }
+
+                    ProcessLine(line);
+                }
             }
             catch (Exception e)
             {
-                FpsShower.Msg("Error in line " + linee, e.ToString(), false);
+                FpsShower.Msg($"Error in line {currentLine}", e.Message, false);
                 FpsShower.playSound = true;
-                Kernel.isExecute = false;
             }
+            finally
+            {
+                //Kernel.op = "";
+            }
+        }
+
+        private static void ProcessLine(string line)
+        {
+            if (string.IsNullOrEmpty(line)) return;
+
+            // Обработка условий
+            if (inElse || inIf)
+            {
+                ProcessConditionalBlock(line);
+                return;
+            }
+
+            // Основные команды
+            ProcessCommand(line);
+        }
+
+        private static void ProcessConditionalBlock(string line)
+        {
+            if (line.Equals("endcond", StringComparison.OrdinalIgnoreCase))
+            {
+                inIf = false;
+                inElse = false;
+                ifTrue = false;
+            }
+            else if (line.Equals("else", StringComparison.OrdinalIgnoreCase))
+            {
+                if (inIf)
+                {
+                    inElse = !ifTrue;
+                    inIf = false;
+                }
+            }
+            else if ((inIf && ifTrue) || inElse)
+            {
+                ProcessCommand(line);
+            }
+        }
+
+        private static void ProcessCommand(string line)
+        {
+            if (line.StartsWith("text ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessTextCommand(line);
+            }
+            else if (line.StartsWith("rect ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessRectCommand(line);
+            }
+            else if (line.StartsWith("circle ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessCircleCommand(line);
+            }
+            else if (line.StartsWith("pixel ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessPixelCommand(line);
+            }
+            else if (line.Equals("shutdown", StringComparison.OrdinalIgnoreCase))
+            {
+                sus.Power.Shutdown();
+            }
+            else if (line.Equals("reboot", StringComparison.OrdinalIgnoreCase))
+            {
+                sus.Power.Reboot();
+            }
+            else if (line.Equals("stop", StringComparison.OrdinalIgnoreCase))
+            {
+                Kernel.op = "";
+            }
+            else if (line.StartsWith("msg ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessMessageCommand(line);
+            }
+            else if (line.StartsWith("beep ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessBeepCommand(line);
+            }
+            else if (line.StartsWith("var ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessVariableDeclaration(line);
+            }
+            else if (line.StartsWith("set ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessVariableAssignment(line);
+            }
+            else if (line.StartsWith("if ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessIfStatement(line);
+            }
+            else if (line.StartsWith("plus ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessMathOperation(line, "plus");
+            }
+            else if (line.StartsWith("minus ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessMathOperation(line, "minus");
+            }
+            else if (line.StartsWith("multiply ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessMathOperation(line, "multiply");
+            }
+            else if (line.StartsWith("divide ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessMathOperation(line, "divide");
+            }
+            else if (line.StartsWith("power ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessMathOperation(line, "power");
+            }
+            else if (line.StartsWith("sqrt ", StringComparison.OrdinalIgnoreCase))
+            {
+                ProcessSqrtCommand(line);
+            }
+            else
+            {
+                throw new Exception($"Invalid command: {line}");
+            }
+        }
+
+        private static void ProcessTextCommand(string line)
+        {
+            string[] parts = line.Substring(5).Split("||");
+            if (parts.Length < 4) throw new Exception("Invalid text command");
+
+            int x = GetNumberValue(parts[0]);
+            int y = GetNumberValue(parts[1]);
+            string text = GetStringValue(parts[2]);
+            Color color = GetColorValue(parts[3]);
+
+            Otrisovka.Write(text, x, y, color);
+        }
+
+        private static void ProcessRectCommand(string line)
+        {
+            string[] parts = line.Substring(5).Split("||");
+            if (parts.Length < 5) throw new Exception("Invalid rect command");
+
+            int x = GetNumberValue(parts[0]);
+            int y = GetNumberValue(parts[1]);
+            int w = GetNumberValue(parts[2]);
+            int h = GetNumberValue(parts[3]);
+            Color color = GetColorValue(parts[4]);
+
+            Kernel.canvas.DrawFilledRectangle(color, x, y, w, h);
+        }
+
+        private static void ProcessCircleCommand(string line)
+        {
+            string[] parts = line.Substring(7).Split("||");
+            if (parts.Length < 4) throw new Exception("Invalid circle command");
+
+            int x = GetNumberValue(parts[0]);
+            int y = GetNumberValue(parts[1]);
+            int r = GetNumberValue(parts[2]);
+            Color color = GetColorValue(parts[3]);
+
+            Kernel.canvas.DrawFilledCircle(color, x, y, r);
+        }
+
+        private static void ProcessPixelCommand(string line)
+        {
+            string[] parts = line.Substring(6).Split("||");
+            if (parts.Length < 3) throw new Exception("Invalid pixel command");
+
+            int x = GetNumberValue(parts[0]);
+            int y = GetNumberValue(parts[1]);
+            Color color = GetColorValue(parts[2]);
+
+            Kernel.canvas.DrawPoint(color, x, y);
+        }
+
+        private static void ProcessMessageCommand(string line)
+        {
+            string[] parts = line.Substring(4).Split("||");
+            if (parts.Length < 3) throw new Exception("Invalid msg command");
+
+            string message = GetStringValue(parts[0]);
+            string title = GetStringValue(parts[1]);
+            bool isInfo = parts[2].Trim().Equals("i", StringComparison.OrdinalIgnoreCase);
+
+            FpsShower.Msg(message, title, isInfo);
+            FpsShower.playSound = true;
+        }
+
+        private static void ProcessBeepCommand(string line)
+        {
+            string[] parts = line.Substring(5).Split("||");
+            if (parts.Length < 2) throw new Exception("Invalid beep command");
+
+            int freq = GetNumberValue(parts[0]);
+            int dur = GetNumberValue(parts[1]);
+
+            Cosmos.System.PCSpeaker.Beep((uint)freq, (uint)dur);
+        }
+
+        private static void ProcessVariableDeclaration(string line)
+        {
+            string[] parts = line.Substring(4).Split("||");
+            string varName = parts[0];
+            string value = parts[1];
+            string type = "";
+            if (FindVariable(varName) == null)
+            {
+                if (value.StartsWith("\"") && value.EndsWith("\""))
+                {
+                    value = value.Substring(1, value.Length - 2);
+                    type = "string";
+                }
+                else if (value.Equals("true", StringComparison.OrdinalIgnoreCase) ||
+                         value.Equals("false", StringComparison.OrdinalIgnoreCase))
+                {
+                    value = value.ToLower();
+                    type = "boolean";
+                }
+                else if (IsNumber(value))
+                {
+                    type = "number";
+                }
+                else if (value.StartsWith("&&"))
+                {
+                    // Копируем значение из другой переменной
+                    Variable sourceVar = FindVariable(value.Substring(2));
+                    if (sourceVar != null)
+                    {
+                        value = sourceVar.Value;
+                        type = sourceVar.Type;
+                    }
+                }
+                else
+                {
+                    throw new Exception("Invalid var type!");
+                }
+                variables.Add(new Variable { Name = varName, Value = value, Type = type });
+            }
+        }
+
+        private static void ProcessVariableAssignment(string line)
+        {
+            string[] parts = line.Substring(4).Split("||");
+            if (parts.Length < 2) throw new Exception("Invalid set command");
+
+            string varName = parts[0].Trim();
+            string value = parts[1].Trim();
+
+            Variable var = FindVariable(varName);
+            if (var == null) throw new Exception($"Variable {varName} not found");
+
+            // Определяем тип значения
+            if (value.StartsWith("\"") && value.EndsWith("\""))
+            {
+                var.Value = value.Substring(1, value.Length - 2);
+                var.Type = "string";
+            }
+            else if (value.Equals("true", StringComparison.OrdinalIgnoreCase) ||
+                     value.Equals("false", StringComparison.OrdinalIgnoreCase))
+            {
+                var.Value = value.ToLower();
+                var.Type = "boolean";
+            }
+            else if (IsNumber(value))
+            {
+                var.Value = value;
+                var.Type = "number";
+            }
+            else if (value.StartsWith("&&"))
+            {
+                // Копируем значение из другой переменной
+                Variable sourceVar = FindVariable(value.Substring(2));
+                if (sourceVar != null)
+                {
+                    var.Value = sourceVar.Value;
+                    var.Type = sourceVar.Type;
+                }
+            }
+            else
+            {
+                throw new Exception("Invalid var type!");
+            }
+        }
+
+        private static void ProcessIfStatement(string line)
+        {
+            string condition = line.Substring(3).Trim();
+            inIf = true;
+
+            if (condition.StartsWith("mouse cia", StringComparison.OrdinalIgnoreCase))
+            {
+                string[] coords = condition.Substring(10).Split("||");
+                if (coords.Length < 4) throw new Exception("Invalid mouse condition");
+
+                int x = GetNumberValue(coords[0]);
+                int y = GetNumberValue(coords[1]);
+                int w = GetNumberValue(coords[2]);
+                int h = GetNumberValue(coords[3]);
+
+                ifTrue = Kernel.Click(x, y, w, h);
+            }
+            else
+            {
+                string[] parts = condition.Split(' ');
+                if (parts.Length < 3) throw new Exception("Invalid if condition");
+
+                string varName = parts[0];
+                string op = parts[1];
+                string compareValue = parts[2];
+
+                Variable var = FindVariable(varName);
+                if (var == null) throw new Exception($"Variable {varName} not found");
+
+                ifTrue = EvaluateCondition(var, op, compareValue);
+            }
+        }
+
+        private static bool EvaluateCondition(Variable variable, string op, string compareValue)
+        {
+            if (variable.Type == "number")
+            {
+                int varValue = int.Parse(variable.Value);
+                int compareVal = GetNumberValue(compareValue);
+
+                return op switch
+                {
+                    ">" => varValue > compareVal,
+                    "<" => varValue < compareVal,
+                    ">=" => varValue >= compareVal,
+                    "<=" => varValue <= compareVal,
+                    "==" => varValue == compareVal,
+                    "!=" => varValue != compareVal,
+                    _ => throw new Exception($"Unknown operator: {op}")
+                };
+            }
+            else if (variable.Type == "string")
+            {
+                string compareStr = GetStringValue(compareValue);
+                return op switch
+                {
+                    "==" => variable.Value == compareStr,
+                    "!=" => variable.Value != compareStr,
+                    _ => throw new Exception($"Unknown operator for string: {op}")
+                };
+            }
+            else if (variable.Type == "boolean")
+            {
+                bool compareBool = compareValue.Equals("true", StringComparison.OrdinalIgnoreCase);
+                bool varBool = variable.Value.Equals("true", StringComparison.OrdinalIgnoreCase);
+                return op switch
+                {
+                    "==" => varBool == compareBool,
+                    "!=" => varBool != compareBool,
+                    _ => throw new Exception($"Unknown operator for boolean: {op}")
+                };
+            }
+
+            throw new Exception("Unsupported variable type");
+        }
+
+        private static void ProcessMathOperation(string line, string operation)
+        {
+            string[] parts = line.Substring(operation.Length + 1).Split("||");
+            if (parts.Length < 2) throw new Exception("Invalid math operation");
+
+            string varName = parts[0].Trim();
+            string valueStr = parts[1].Trim();
+
+            Variable var = FindVariable(varName);
+            if (var == null || var.Type != "number")
+                throw new Exception($"Number variable {varName} not found");
+
+            int currentValue = int.Parse(var.Value);
+            int value = GetNumberValue(valueStr);
+
+            int result = operation switch
+            {
+                "plus" => currentValue + value,
+                "minus" => currentValue - value,
+                "multiply" => currentValue * value,
+                "divide" => value == 0 ? throw new Exception("Division by zero") : currentValue / value,
+                "power" => (int)Math.Pow(currentValue, value),
+                _ => throw new Exception($"Unknown operation: {operation}")
+            };
+
+            var.Value = result.ToString();
+        }
+
+        private static void ProcessSqrtCommand(string line)
+        {
+            string varName = line.Substring(5).Trim();
+            Variable var = FindVariable(varName);
+            if (var == null || var.Type != "number")
+                throw new Exception($"Number variable {varName} not found");
+
+            int value = int.Parse(var.Value);
+            var.Value = ((int)Math.Sqrt(value)).ToString();
+        }
+
+        private static Variable FindVariable(string name)
+        {
+            foreach (Variable var in variables)
+            {
+                if (var.Name == name) return var;
+            }
+            return null;
+        }
+
+        private static int GetNumberValue(string input)
+        {
+            input = input.Trim();
+
+            if (input.StartsWith("&&"))
+            {
+                Variable var = FindVariable(input.Substring(2));
+                if (var == null || var.Type != "number")
+                    throw new Exception($"Number variable {input.Substring(2)} not found");
+                return int.Parse(var.Value);
+            }
+
+            if (int.TryParse(input, out int result))
+                return result;
+
+            throw new Exception($"Invalid number: {input}");
+        }
+
+        private static string GetStringValue(string input)
+        {
+            input = input.Trim();
+
+            if (input.StartsWith("&&"))
+            {
+                Variable var = FindVariable(input.Substring(2));
+                if (var == null) throw new Exception($"Variable {input.Substring(2)} not found");
+                return var.Value;
+            }
+
+            if (input.StartsWith("\"") && input.EndsWith("\""))
+                return input.Substring(1, input.Length - 2);
+
+            return input;
+        }
+
+        private static Color GetColorValue(string input)
+        {
+            string colorName = GetStringValue(input);
+            try
+            {
+                return Color.FromName(colorName);
+            }
+            catch
+            {
+                throw new Exception($"Invalid color: {colorName}");
+            }
+        }
+
+        private static bool IsNumber(string value)
+        {
+            return int.TryParse(value, out _);
         }
     }
 }

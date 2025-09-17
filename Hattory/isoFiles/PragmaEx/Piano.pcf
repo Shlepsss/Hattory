@@ -1,0 +1,1 @@
+rect 50||50||100||50||Blue#rect 200||50||100||50||Green#rect 350||50||100||50||Red#rect 500||50||100||50||Yellow#if mouse cia 50||50||100||50#beep 440||100#endcond#if mouse cia 200||50||100||50#beep 523||100#endcond#if mouse cia 350||50||100||50#beep 659||100#endcond#if mouse cia 500||50||100||50#beep 784||100#endcond

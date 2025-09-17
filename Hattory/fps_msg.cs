@@ -65,13 +65,20 @@ namespace Hattory
             messag2 = message2;
             typ = IsInfo;
             showmsg = true;
-            Kernel.canvas.DrawFilledRectangle(System.Drawing.Color.Gray, 392, 334, 240, 100);
+            if (IsInfo) { Kernel.canvas.DrawImageAlpha(Kernel.infoIcon, 398, 390);
+                Kernel.canvas.DrawFilledRectangle(System.Drawing.Color.DeepSkyBlue, 390, 332, 244, 104);
+                Kernel.canvas.DrawFilledRectangle(System.Drawing.Color.MidnightBlue, 392, 334, 240, 100);
+                Kernel.canvas.DrawImageAlpha(Kernel.infoIcon, 398, 390);
+            }
+            else { Kernel.canvas.DrawImageAlpha(Kernel.warnIcon, 417, 380);
+                Kernel.canvas.DrawFilledRectangle(System.Drawing.Color.Red, 390, 332, 244, 104);
+                Kernel.canvas.DrawFilledRectangle(System.Drawing.Color.FromArgb(75, 0, 0), 392, 334, 240, 100);
+                Kernel.canvas.DrawImageAlpha(Kernel.warnIcon, 417, 380);
+            }
             Otrisovka.Write(message, 400, 345, System.Drawing.Color.White);
             Otrisovka.Write(message2, 400, 365, System.Drawing.Color.White);
-            Kernel.canvas.DrawFilledRectangle(System.Drawing.Color.DarkGray, 482, 394, 60, 30);
-            Otrisovka.Write("OK", 504, 399, System.Drawing.Color.White);
-            if (IsInfo) { Kernel.canvas.DrawImageAlpha(Kernel.infoIcon, 398, 390); }
-            else { Kernel.canvas.DrawImageAlpha(Kernel.warnIcon, 417, 380); }
+            Kernel.canvas.DrawFilledRectangle(System.Drawing.Color.MediumPurple, 482, 394, 60, 30);
+            Otrisovka.Write("OK", 504, 399, System.Drawing.Color.Indigo);
             if (playSound)
             {
                 if (Kernel.NoAC97)

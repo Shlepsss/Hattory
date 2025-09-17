@@ -26,7 +26,7 @@
         <UseUEFI>True</UseUEFI>
         <RemoveBootDebugOutput>False</RemoveBootDebugOutput>
         <StackCorruptionDetectionEnabled>False</StackCorruptionDetectionEnabled>
-        <OptimizationLevel>0</OptimizationLevel>
+        <OptimizationLevel>3</OptimizationLevel>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
