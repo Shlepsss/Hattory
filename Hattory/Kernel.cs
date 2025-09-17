@@ -53,6 +53,7 @@ namespace Hattory
 
         //====OTHER====
 
+        public static int att = 0;
         public static Color colorOfPanel = Color.Indigo;
         public static string first; //for calculator
         public static string second; //for calculator
@@ -561,6 +562,7 @@ namespace Hattory
                             if (op != "guess")
                             {
                                 op = "guess";
+                                att = 0;
                                 klavaypr.On = false;
                                 randomnum = new Random().Next(0, 101);
                                 status = "New number has made";
@@ -999,7 +1001,7 @@ namespace Hattory
                         canvas.DrawFilledRectangle(Color.DarkSlateGray, 160, 95, 50, 20);
                         canvas.DrawFilledRectangle(Color.Black, 220, 95, 50, 20);
                         canvas.DrawFilledRectangle(Color.Teal, 40, 125, 50, 20);
-                        canvas.DrawFilledRectangle(Color.Purple, 100, 125, 50, 20);
+                        canvas.DrawFilledRectangle(Color.FromArgb(75,0,130), 100, 125, 50, 20);
                         canvas.DrawFilledRectangle(Color.DarkRed, 160, 125, 50, 20);
                         canvas.DrawFilledRectangle(Color.DarkGreen, 220, 125, 50, 20);
 
@@ -1011,7 +1013,7 @@ namespace Hattory
                         if (Click(160, 95, 50, 20)) { colora = Color.DarkSlateGray; }
                         if (Click(220, 95, 50, 20)) { colora = Color.Black; }
                         if (Click(40, 125, 50, 20)) { colora = Color.Teal; }
-                        if (Click(100, 125, 50, 20)) { colora = Color.Purple; }
+                        if (Click(100, 125, 50, 20)) { colora = Color.FromArgb(75, 0, 130); }
                         if (Click(160, 125, 50, 20)) { colora = Color.DarkRed; }
                         if (Click(220, 125, 50, 20)) { colora = Color.DarkGreen; }
 
@@ -1019,7 +1021,7 @@ namespace Hattory
                         if (ClickMiddle(160, 95, 50, 20)) { colorOfPanel = Color.DarkSlateGray; }
                         if (ClickMiddle(220, 95, 50, 20)) { colorOfPanel = Color.Black; }
                         if (ClickMiddle(40, 125, 50, 20)) { colorOfPanel = Color.Teal; }
-                        if (ClickMiddle(100, 125, 50, 20)) { colorOfPanel = Color.Purple; }
+                        if (ClickMiddle(100, 125, 50, 20)) { colorOfPanel = Color.FromArgb(75, 0, 130); }
                         if (ClickMiddle(160, 125, 50, 20)) { colorOfPanel = Color.DarkRed; }
                         if (ClickMiddle(220, 125, 50, 20)) { colorOfPanel = Color.DarkGreen; }
 
@@ -1097,6 +1099,7 @@ namespace Hattory
                         break;
                     //====Guess It!
                     case "guess":
+                        
                         canvas.DrawFilledRectangle(Color.FromArgb(128, 0, 128), 150, 100, 375, 160);
                         canvas.DrawFilledRectangle(Color.FromArgb(45, 0, 45), 152, 102, 371, 156);
                         canvas.DrawFilledRectangle(Color.FromArgb(75, 0, 130), 152, 102, 371, 25);
@@ -1107,23 +1110,27 @@ namespace Hattory
                         Otrisovka.Write("X", 150 + 375 - 17, 100 + 7, Color.White);
 
                         klavaypr.On = false;
-                        canvas.DrawFilledRectangle(Color.Gray, 415, 175, 80, 30);
+                        canvas.DrawFilledRectangle(Color.Gray, 415, 175, 100, 30);
                         canvas.DrawFilledRectangle(Color.Gray, 160, 175, 200, 20);
                         Otrisovka.Write("New Number", 420, 180, Color.Black);
                         Otrisovka.Write("I made random number from 0 to 100, Guess It!", 160, 155, Color.Lavender);
+                        Otrisovka.Write("New Number", 420, 180, Color.Black);
+                        Otrisovka.Write("Attempts: " + att, 420, 215, Color.White);
                         sus.KeyboardManager.TryReadKey(out k);
                         Otrisovka.Write(enterrednum, 160, 180, Color.Black);
                         Otrisovka.Write(status, 160, 215, Color.White);
                         klavaypr.YPRklava(k);
-                        if (Click(415, 175, 80, 30))
+                        if (Click(415, 175, 100, 30))
                         {
                             randomnum = new System.Random().Next(0, 101);
                             status = "New number generated";
+                            att = 0;
                             enterrednum = "";
                         }
                         if (Click(503, 104, 18, 18))
                         {
                             klavaypr.On = true;
+                            att = 0;
                             op = "";
                         }
                         if (k.Key == ConsoleKeyy.Spacebar)
@@ -1140,6 +1147,7 @@ namespace Hattory
                         else if (k.Key == ConsoleKeyy.Escape)
                         {
                             klavaypr.On = true;
+                            att=0;
                             op = "";
                         }
                         else if (k.Key == ConsoleKeyy.Enter)
@@ -1150,14 +1158,17 @@ namespace Hattory
                                 if (num > randomnum)
                                 {
                                     status = "Guessed number less than " + num.ToString();
+                                    att++;
                                 }
                                 else if (num < randomnum)
                                 {
                                     status = "Guessed number greater than " + num.ToString();
+                                    att++;
                                 }
                                 else if (num == randomnum)
                                 {
                                     status = "You guess it! Congratulations!";
+                                    att=0;
                                     randomnum = new System.Random().Next(0, 101);
                                 }
                             }

@@ -10,6 +10,7 @@ using Cosmos.System.Graphics;
 using System.Drawing;
 using Cosmos.System.Graphics.Fonts;
 using Cosmos.Debug.Kernel.Plugs.Asm;
+using Cosmos.System;
 
 namespace Hattory
 {
@@ -77,11 +78,7 @@ namespace Hattory
                         string[] coordinates = s.Split(';');
                         int x = Convert.ToInt32(coordinates[0]);
                         int y = Convert.ToInt32(coordinates[1]);
-                        float d = (float)Math.Sqrt((int)Math.Pow((int)sus.MouseManager.X - x, 2) + (int)Math.Pow((int)sus.MouseManager.Y - y, 2));
-                        if (d <= 3.0f)
-                        {
-                            coords.Remove(s);
-                        }
+                        if(MouseManager.X == x && MouseManager.Y == y) { coords.Remove(s); }
                     }
                 }
             }
